@@ -1,0 +1,54 @@
+{
+  "manifest_version": 3,
+  "name": "Ask My AI",
+  "version": "0.0.1",
+  "description": "Send selected text to your preferred AI for explanation",
+  "permissions": ["contextMenus", "storage", "tabs", "sidePanel", "declarativeNetRequestWithHostAccess", "activeTab"],
+  "host_permissions": [
+    "*://claude.ai/*",
+    "*://*.claude.ai/*",
+    "*://chatgpt.com/*",
+    "*://*.chatgpt.com/*",
+    "*://perplexity.ai/",
+    "*://*.perplexity.ai/",
+    "*://google.com/",
+    "*://*.google.com/",
+    "*://scira.ai/",
+    "*://*.scira.ai/",
+    "*://chat.deepseek.com/"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://claude.ai/*",
+        "*://*.claude.ai/*",
+        "*://chatgpt.com/*",
+        "*://*.chatgpt.com/*",
+        "*://perplexity.ai/",
+        "*://*.perplexity.ai/",
+        "*://google.com/",
+        "*://*.google.com/",
+        "*://scira.ai/",
+        "*://*.scira.ai/",
+        "*://chat.deepseek.com/"
+      ],
+      "js": ["content.js"],
+      "all_frames": true
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Ask My AI Settings"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
