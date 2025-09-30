@@ -2,7 +2,7 @@ export interface PortMessage {
   action: string;
 }
 
-export type AiType = "chatgpt" | "claude" | "google" | "gemini" | "scira" | "deepseek";
+export type AiType = "chatgpt" | "claude" | "google" | "gemini" | "scira" | "deepseek" | "mistral";
 export type AiConfig = {
   label: string;
   url: string;

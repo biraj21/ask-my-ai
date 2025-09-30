@@ -29,4 +29,8 @@ export const URLs: Record<AiType, AiConfig> = {
     label: "Deepseek",
     url: "https://chat.deepseek.com/",
   },
+  mistral: {
+    label: "Mistral Le Chat",
+    url: "https://chat.mistral.ai/chat",
+  },
 };
