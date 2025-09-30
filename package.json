@@ -1,11 +1,12 @@
 {
   "name": "ask-my-ai",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "pack": "pnpm run build && zip -r releases/ask-my-ai-v$npm_package_version.zip dist/",
     "preview": "vite preview"
   },
   "devDependencies": {
