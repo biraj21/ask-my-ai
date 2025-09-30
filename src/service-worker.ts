@@ -1,4 +1,5 @@
 import { ContextMenu } from "./constants";
+import { logger } from "./logger";
 import type { PortConnection, SelectionInfo } from "./types";
 
 const contextMenuTitleWithSelectedAi = async () => {
@@ -70,7 +71,7 @@ chrome.contextMenus.onClicked.addListener(async function (info, tab) {
       await chrome.sidePanel.open({ windowId: tab.windowId });
 
       if (!info.selectionText) {
-        console.log("No selection text found.");
+        logger.log("No selection text found.");
         return;
       }
 
@@ -89,14 +90,14 @@ chrome.contextMenus.onClicked.addListener(async function (info, tab) {
       chrome.storage.session.set({ selectionInfo: selectionInfo });
 
       for (const connection of activeConnections) {
-        console.debug(`Sending selection text via port for tab ${tab.url}`);
+        logger.debug(`Sending selection text via port for tab ${tab.url}`);
         connection.port.postMessage({
           action: "getSelection",
           selectionInfo,
         });
       }
     } catch (error) {
-      console.error("Error handling Ask my AI:", error);
+      logger.error("Error handling Ask my AI:", error);
     }
   }
 });
@@ -116,7 +117,7 @@ const activeConnections = new Set<PortConnection>();
 
 // Listen for connections from content scripts
 chrome.runtime.onConnect.addListener(async (port) => {
-  console.debug("New connection:", port);
+  logger.debug("New connection:", port);
 
   if (port.name !== "content-background-port") {
     return;
@@ -141,7 +142,7 @@ chrome.runtime.onConnect.addListener(async (port) => {
 
   // Listen for messages from this content script
   port.onMessage.addListener(async (message) => {
-    console.debug("Received message from content script:", message);
+    logger.debug("Received message from content script:", message);
 
     switch (message.action) {
       case "getSelection":
@@ -168,8 +169,8 @@ chrome.runtime.onConnect.addListener(async (port) => {
 
   // Handle disconnect
   port.onDisconnect.addListener(() => {
-    console.debug(`Connection disconnected for port ${port}`);
+    logger.debug(`Connection disconnected for port ${port}`);
     activeConnections.delete(connection);
-    console.debug(`Active connections: ${activeConnections.size}`);
+    logger.debug(`Active connections: ${activeConnections.size}`);
   });
 });

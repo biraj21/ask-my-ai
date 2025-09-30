@@ -36,5 +36,8 @@ export const ContextMenu = {
 };
 
 export const MessageType = {
-  EXT_IFRAME_READY: "EXT_IFRAME_READY",
+  EXT_IFRAME_HANDSHAKE_INIT: "EXT_IFRAME_HANDSHAKE_INIT",
+  EXT_IFRAME_HANDSHAKE_RESP: "EXT_IFRAME_HANDSHAKE_RESP",
 };
+
+export const EXT_NAME = "Ask my AI";

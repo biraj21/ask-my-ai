@@ -1,11 +1,12 @@
 import { URLs, MessageType } from "./constants";
+import { logger } from "./logger";
 
 // Load saved preferences
 document.addEventListener("DOMContentLoaded", async () => {
   // Update dropdown options based on enabled AIs
   const select = document.getElementById("ai-select");
   if (!(select instanceof HTMLSelectElement)) {
-    console.error("AI select element not found!");
+    logger.error("AI select element not found!");
     return;
   }
 
@@ -35,7 +36,7 @@ async function loadAIInIframe(aiType: keyof typeof URLs) {
   // Show the AI container with loading message
   const container = document.getElementById("ai-container");
   if (!container) {
-    console.error("AI container element not found!");
+    logger.error("AI container element not found!");
     return;
   }
 
@@ -54,28 +55,38 @@ async function loadAIInIframe(aiType: keyof typeof URLs) {
   container.appendChild(iframe);
   container.style.display = "block";
 
-  // Simply set the iframe src directly - CSP rules will handle the rest
-  iframe.src = currentAiConfig.url;
+  window.onmessage = (e) => {
+    if (e.data.type === MessageType.EXT_IFRAME_HANDSHAKE_INIT) {
+      if (e.data.extId === chrome.runtime.id) {
+        if (!iframe.contentWindow) {
+          logger.error("iframe.contentWindow is undefined");
+          return;
+        }
+
+        iframe.contentWindow.postMessage(
+          {
+            type: MessageType.EXT_IFRAME_HANDSHAKE_RESP,
+            extId: chrome.runtime.id,
+          },
+          "*"
+        );
+      } else {
+        logger.error("Unexpected message from iframe: " + JSON.stringify(e.data));
+      }
+    }
+  };
 
   iframe.onload = async () => {
-    console.log(`✅ Successfully loaded ${aiType} in iframe!`);
+    logger.log(`✅ Successfully loaded ${aiType} in iframe (${iframe.id})!`);
 
     if (!iframe.contentWindow) {
-      console.error("iframe.contentWindow is undefined");
+      logger.error("iframe.contentWindow is undefined");
       return;
     }
-
-    iframe.contentWindow.postMessage(
-      {
-        type: MessageType.EXT_IFRAME_READY,
-        extId: chrome.runtime.id,
-      },
-      "*"
-    );
   };
 
   iframe.onerror = (e) => {
-    console.error(`❌ Failed to load ${aiType} in iframe:`, e);
+    logger.error(`❌ Failed to load ${aiType} in iframe:`, e);
 
     // Fallback: show a message with link to open in new tab
 

@@ -1,17 +1,31 @@
 import { MessageType } from "./constants";
+import { logger } from "./logger";
 import type { PortMessage, SelectionInfo } from "./types";
 
-async function waitForIframeReady(timeout: number = 3_000) {
+async function waitForIframeHandshake(timeout: number = 500) {
   let listener: ((event: MessageEvent) => void) | null = null;
   let timeoutId: number | undefined = undefined;
   try {
-    const iframeReadyPromise = new Promise((resolve, reject) => {
-      listener = (event: MessageEvent) => {
-        if (event.data.type === MessageType.EXT_IFRAME_READY) {
-          if (event.data.extId === chrome.runtime.id) {
+    const handshakeStart = Date.now();
+
+    // init handshake
+    window.parent.postMessage(
+      {
+        type: MessageType.EXT_IFRAME_HANDSHAKE_INIT,
+        extId: chrome.runtime.id,
+      },
+      "*"
+    );
+
+    // set up a promise to wait for handshake response
+    const iframeHandshakePromise = new Promise((resolve, reject) => {
+      listener = (e: MessageEvent) => {
+        logger.debug("iframe ready message", e.data, window.location.href);
+        if (e.data.type === MessageType.EXT_IFRAME_HANDSHAKE_RESP) {
+          if (e.data.extId === chrome.runtime.id) {
             resolve(undefined);
           } else {
-            reject(new Error("Unexpected message from iframe: " + JSON.stringify(event.data)));
+            reject(new Error("Unexpected message from iframe: " + JSON.stringify(e.data)));
           }
         }
       };
@@ -21,11 +35,13 @@ async function waitForIframeReady(timeout: number = 3_000) {
 
     const timeoutPromise = new Promise((_resolve, reject) => {
       timeoutId = setTimeout(() => {
-        reject(new Error("Timeout waiting for iframe ready"));
+        reject(new Error("Handshake timeout"));
       }, timeout);
     });
 
-    await Promise.race([iframeReadyPromise, timeoutPromise]);
+    await Promise.race([iframeHandshakePromise, timeoutPromise]);
+
+    logger.debug("Handshake completed in", Date.now() - handshakeStart, "ms");
   } catch (err) {
     throw err;
   } finally {
@@ -43,18 +59,18 @@ async function init() {
     return;
   }
 
-  await waitForIframeReady();
-  console.debug("iframe ready");
+  await waitForIframeHandshake();
+  logger.debug("iframe ready", window.location.href);
 
   const port = chrome.runtime.connect({ name: "content-background-port" });
 
   await new Promise((resolve, reject) => {
     const connectionMsgListener = (message: PortMessage) => {
       if (message.action === "connected") {
-        console.debug("Received connection acknowledgment from background script:", message);
+        logger.debug("Received connection acknowledgment from background script:", message);
         resolve(undefined);
       } else {
-        console.log("Unexpected message from background script while waiting for connection acknowledgement:", message);
+        logger.log("Unexpected message from background script while waiting for connection acknowledgement:", message);
         reject(new Error("Unexpected message from background script"));
       }
 
@@ -90,13 +106,13 @@ async function init() {
 
   port.onMessage.addListener((message) => {
     if (message.action === "getSelection") {
-      console.debug("Received response:", message);
+      logger.debug("Received response:", message);
 
       const newInputElements = getPromptElement();
       newInputElements.forEach((el) => allPromptInputs.add(el));
 
       if (allPromptInputs.size === 0) {
-        console.debug("No prompt input elements found yet.");
+        logger.debug("No prompt input elements found yet.");
         pendingSelection = message.selectionInfo;
         return;
       }
@@ -140,7 +156,7 @@ async function init() {
 
   function injectText(selection: SelectionInfo, inputElementsArg?: Element[]) {
     if (selection.previousAi === selection.currentAi && Date.now() - selection.timestamp > 5000) {
-      console.debug("selected text older than 5 seconds.. skipping");
+      logger.debug("selected text older than 5 seconds.. skipping");
       return;
     }
 
@@ -149,7 +165,7 @@ async function init() {
     const text = selection.text;
 
     for (const inputElement of elements) {
-      console.debug("injecting text", text, "into input:", inputElement);
+      logger.debug("injecting text", text, "into input:", inputElement);
 
       // (inputElement as any).focus();
 
@@ -180,7 +196,7 @@ async function main() {
   try {
     await init();
   } catch (error) {
-    console.error(`Error during init ${window.location.href}:`, error);
+    logger.error(`Error during init ${window.location.href}:`, error);
   }
 }
 
