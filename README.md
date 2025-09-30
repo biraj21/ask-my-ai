@@ -27,11 +27,15 @@ Perfect for quickly understanding complex concepts, code snippets, technical ter
 ### Option 1: Load as Unpacked Extension (Developer Mode)
 
 1. **Download or clone** this repository to your computer
-2. **Open Chrome** and go to `chrome://extensions/`
-3. **Enable Developer Mode** (toggle in top-right corner)
-4. **Click "Load unpacked"** button
-5. **Select the extension folder** (the one containing `manifest.json`)
-6. **Done!** The extension is now installed
+2. **Install dependencies** - Run `pnpm install` in the project directory
+3. **Build the extension** - Run `pnpm build` to compile TypeScript and bundle with Vite
+4. **Open Chrome** and go to `chrome://extensions/`
+5. **Enable Developer Mode** (toggle in top-right corner)
+6. **Click "Load unpacked"** button
+7. **Select the `dist` folder** from the project directory
+8. **Done!** The extension is now installed
+
+> **Note:** After making code changes, run `pnpm build` again and click the refresh icon on the extension card in `chrome://extensions/`
 
 ### Option 2: From Chrome Web Store
 
@@ -49,7 +53,6 @@ _Coming soon - extension will be published to Chrome Web Store_
 
 - ChatGPT (chatgpt.com)
 - Claude (claude.ai)
-- Perplexity (perplexity.ai)
 - Google Gemini (gemini.google.com)
 - Scira AI (scira.ai)
 - DeepSeek Chat (chat.deepseek.com)
