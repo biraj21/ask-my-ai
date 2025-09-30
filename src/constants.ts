@@ -9,10 +9,6 @@ export const URLs: Record<AiType, AiConfig> = {
     label: "Claude",
     url: "https://claude.ai/new",
   },
-  // perplexity: {
-  //   label: "Perplexity",
-  //   url: "https://perplexity.ai/",
-  // },
   google: {
     label: "Google ",
     url: "https://google.com/",
@@ -33,4 +29,8 @@ export const URLs: Record<AiType, AiConfig> = {
     label: "Mistral Le Chat",
     url: "https://chat.mistral.ai/chat",
   },
+};
+
+export const ContextMenu = {
+  AskMyAi: "ask-my-ai",
 };

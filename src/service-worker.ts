@@ -1,10 +1,23 @@
+import { ContextMenu } from "./constants";
 import type { PortConnection, SelectionInfo } from "./types";
+
+const contextMenuTitleWithSelectedAi = async () => {
+  const { selectedAI } = await chrome.storage.local.get("selectedAI");
+  return selectedAI ? `Ask my AI (${selectedAI})` : "Ask my AI";
+};
+
+// Function to update context menu text
+const updateContextMenu = async () => {
+  chrome.contextMenus.update(ContextMenu.AskMyAi, {
+    title: await contextMenuTitleWithSelectedAi(),
+  });
+};
 
 // Create context menu when extension is installed
 chrome.runtime.onInstalled.addListener(async () => {
   chrome.contextMenus.create({
-    id: "ask-my-ai",
-    title: "Ask my AI",
+    id: ContextMenu.AskMyAi,
+    title: await contextMenuTitleWithSelectedAi(),
     contexts: ["selection"],
   });
 
@@ -35,9 +48,19 @@ chrome.runtime.onInstalled.addListener(async () => {
   });
 });
 
+// Update context menu on startup
+chrome.runtime.onStartup.addListener(updateContextMenu);
+
+// Listen for storage changes and update context menu
+chrome.storage.onChanged.addListener((changes, namespace) => {
+  if (namespace === "local" && changes.selectedAI) {
+    updateContextMenu();
+  }
+});
+
 // Handle context menu clicks
 chrome.contextMenus.onClicked.addListener(async function (info, tab) {
-  if (info.menuItemId === "ask-my-ai") {
+  if (info.menuItemId === ContextMenu.AskMyAi) {
     try {
       if (!tab) {
         throw new Error("tab is undefined");
