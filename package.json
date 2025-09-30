@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "pack": "pnpm run build && zip -r releases/ask-my-ai-v$npm_package_version.zip dist/",
+    "pack": "pnpm run build && mkdir -p releases && zip -r releases/ask-my-ai-v$npm_package_version.zip dist/",
     "preview": "vite preview"
   },
   "devDependencies": {
