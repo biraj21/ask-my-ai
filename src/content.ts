@@ -1,11 +1,13 @@
+import type { PortMessage, SelectionInfo } from "./types";
+
 async function init() {
   const port = chrome.runtime.connect({ name: "content-background-port" });
 
   await new Promise((resolve, reject) => {
-    const connectionMsgListener = (message) => {
+    const connectionMsgListener = (message: PortMessage) => {
       if (message.action === "connected") {
-        console.log("Received connection acknowledgment from background script:", message);
-        resolve();
+        console.debug("Received connection acknowledgment from background script:", message);
+        resolve(undefined);
       } else {
         console.log("Unexpected message from background script while waiting for connection acknowledgement:", message);
         reject(new Error("Unexpected message from background script"));
@@ -18,8 +20,8 @@ async function init() {
     port.onMessage.addListener(connectionMsgListener);
   });
 
-  let pendingSelectionText = null;
-  let allPromptInputs = new Set();
+  let pendingSelection: SelectionInfo | null = null;
+  let allPromptInputs = new Set<Element>();
 
   const getPromptElement = () => {
     const inputElements = [];
@@ -42,20 +44,20 @@ async function init() {
   };
 
   port.onMessage.addListener((message) => {
-    if (message.action === "getSelectionText") {
-      console.log("Received response:", message);
+    if (message.action === "getSelection") {
+      console.debug("Received response:", message);
 
       const newInputElements = getPromptElement();
       newInputElements.forEach((el) => allPromptInputs.add(el));
 
       if (allPromptInputs.size === 0) {
-        console.log("No prompt input elements found yet.");
-        pendingSelectionText = message.selectionText;
+        console.debug("No prompt input elements found yet.");
+        pendingSelection = message.selectionInfo;
         return;
       }
 
-      if (message.selectionText) {
-        injectText(message.selectionText);
+      if (message.selectionInfo) {
+        injectText(message.selectionInfo);
       }
     }
   });
@@ -72,38 +74,48 @@ async function init() {
       allPromptInputs.add(elem);
     }
 
-    console.log("birajlog fuck allPromptInputs.size", allPromptInputs.size);
+    console.debug("birajlog allPromptInputs.size", allPromptInputs.size);
 
     if (allPromptInputs.size > sizeBefore) {
-      if (pendingSelectionText) {
-        injectText(pendingSelectionText, newInputElements);
+      if (pendingSelection) {
+        injectText(pendingSelection, newInputElements);
       } else {
-        console.log("birajlog fuck sending postMessage to getSelectionText");
-
+        console.debug("birajlog sending postMessage to getSelection");
         port.postMessage({
-          action: "getSelectionText",
+          action: "getSelection",
         });
       }
     }
 
     if (attempts <= 10) {
       setTimeout(fuck, 500);
+    } else {
+      pendingSelection = null; // selection's consumed
     }
   }
 
   fuck();
 
-  function injectText(text, inputElementsArg) {
-    inputElementsArg = new Set(inputElementsArg || allPromptInputs || []);
+  function injectText(selection: SelectionInfo, inputElementsArg?: Element[]) {
+    console.debug("birajlog injectText selection", selection);
+    if (selection.previousAi === selection.currentAi && Date.now() - selection.timestamp > 3000) {
+      console.debug("selected text older than 3 seconds.. skipping");
+      return;
+    }
 
-    for (const inputElement of inputElementsArg) {
-      console.log("injecting text", text, "into input:", inputElement);
+    const elements = new Set(inputElementsArg || allPromptInputs || []);
 
-      inputElement.focus();
+    const text = selection.text;
+
+    for (const inputElement of elements) {
+      console.debug("injecting text", text, "into input:", inputElement);
+
+      // (inputElement as any).focus();
+
       if (inputElement instanceof HTMLTextAreaElement || inputElement instanceof HTMLInputElement) {
         inputElement.value = text;
       } else {
-        inputElement.innerText = text;
+        (inputElement as any).innerText = text;
       }
 
       // Trigger multiple events to ensure the site recognizes the change

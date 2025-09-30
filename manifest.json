@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "name": "Ask My AI",
   "version": "0.0.1",
-  "description": "Send selected text to your preferred AI for explanation",
-  "permissions": ["contextMenus", "storage", "tabs", "sidePanel", "declarativeNetRequestWithHostAccess", "activeTab"],
+  "description": "Select any text on any webpage and instantly ask your preferred AI to explain it, all within a convenient sidebar.",
+  "permissions": ["contextMenus", "storage",  "sidePanel", "declarativeNetRequestWithHostAccess"],
   "host_permissions": [
     "*://claude.ai/*",
     "*://*.claude.ai/*",
@@ -18,10 +18,10 @@
     "*://chat.deepseek.com/"
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "src/service-worker.js"
   },
   "side_panel": {
-    "default_path": "sidepanel.html"
+    "default_path": "side-panel.html"
   },
   "content_scripts": [
     {
@@ -38,7 +38,8 @@
         "*://*.scira.ai/",
         "*://chat.deepseek.com/"
       ],
-      "js": ["content.js"],
+      "js": ["src/content.ts"],
+      "type": "module",
       "all_frames": true
     }
   ],
