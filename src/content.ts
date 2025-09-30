@@ -25,7 +25,6 @@ async function waitForIframeReady(timeout: number = 3_000) {
       }, timeout);
     });
 
-    console.debug("birajlog waiting for iframe ready", window.location.href);
     await Promise.race([iframeReadyPromise, timeoutPromise]);
   } catch (err) {
     throw err;
