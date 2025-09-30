@@ -5,16 +5,17 @@
   "description": "Select any text on any webpage and instantly ask your preferred AI to explain it, all within a convenient sidebar.",
   "permissions": ["contextMenus", "storage", "sidePanel", "declarativeNetRequestWithHostAccess"],
   "host_permissions": [
-    "*://claude.ai/*",
-    "*://*.claude.ai/*",
-    "*://chatgpt.com/*",
-    "*://*.chatgpt.com/*",
-    "*://google.com/",
-    "*://*.google.com/",
-    "*://scira.ai/",
-    "*://*.scira.ai/",
-    "*://chat.deepseek.com/*",
-    "*://chat.mistral.ai/*"
+    "https://claude.ai/*",
+    "https://www.claude.ai/*",
+    "https://chatgpt.com/*",
+    "https://www.chatgpt.com/*",
+    "https://google.com/",
+    "https://www.google.com/",
+    "https://gemini.google.com/",
+    "https://scira.ai/",
+    "https://www.scira.ai/",
+    "https://chat.deepseek.com/*",
+    "https://chat.mistral.ai/*"
   ],
   "background": {
     "service_worker": "src/service-worker.js"
@@ -25,16 +26,17 @@
   "content_scripts": [
     {
       "matches": [
-        "*://claude.ai/*",
-        "*://*.claude.ai/*",
-        "*://chatgpt.com/*",
-        "*://*.chatgpt.com/*",
-        "*://google.com/*",
-        "*://*.google.com/*",
-        "*://scira.ai/*",
-        "*://*.scira.ai/*",
-        "*://chat.deepseek.com/*",
-        "*://chat.mistral.ai/*"
+        "https://claude.ai/*",
+        "https://www.claude.ai/*",
+        "https://chatgpt.com/*",
+        "https://www.chatgpt.com/*",
+        "https://google.com/*",
+        "https://www.google.com/*",
+        "https://gemini.google.com/",
+        "https://scira.ai/*",
+        "https://www.scira.ai/*",
+        "https://chat.deepseek.com/*",
+        "https://chat.mistral.ai/*"
       ],
       "js": ["src/content.ts"],
       "all_frames": true
