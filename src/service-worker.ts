@@ -72,7 +72,7 @@ chrome.contextMenus.onClicked.addListener(async function (info, tab) {
       await chrome.sidePanel.open({ windowId: tab.windowId });
 
       if (!info.selectionText) {
-        logger.log("No selection text found.");
+        logger.error("No selection text found.");
         return;
       }
 
@@ -96,7 +96,7 @@ chrome.contextMenus.onClicked.addListener(async function (info, tab) {
       let i = 0;
       for (; i < 5; ++i) {
         try {
-          logger.log(`Sending selection info to side panel (attempt ${i + 1})`);
+          logger.debug(`Sending selection info to side panel (attempt ${i + 1})`);
           await chrome.runtime.sendMessage({ action: MessageType.EXT_SELECTION_INFO_SAVED, selectionInfo });
           sent = true;
           break;

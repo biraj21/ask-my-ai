@@ -115,7 +115,7 @@ async function loadAIInIframe(aiType: keyof typeof URLs) {
   container.style.display = "block";
 
   newIframe.onload = async () => {
-    logger.log(`✅ Successfully loaded ${aiType} in iframe (${newIframe.id})!`);
+    logger.log(`✅ Successfully loaded ${aiType} in iframe!`);
   };
 
   newIframe.onerror = (e) => {
