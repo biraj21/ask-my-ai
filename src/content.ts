@@ -1,6 +1,8 @@
 import { MessageType } from "./constants";
 import { logger } from "./logger";
-import type { PortMessage, SelectionInfo } from "./types";
+import type { SelectionInfo } from "./types";
+
+let pendingSelection: SelectionInfo | null = null;
 
 async function waitForIframeHandshake(timeout: number = 500) {
   let listener: ((event: MessageEvent) => void) | null = null;
@@ -11,7 +13,7 @@ async function waitForIframeHandshake(timeout: number = 500) {
     // init handshake
     window.parent.postMessage(
       {
-        type: MessageType.EXT_IFRAME_HANDSHAKE_INIT,
+        action: MessageType.EXT_IFRAME_HANDSHAKE_INIT,
         extId: chrome.runtime.id,
       },
       "*"
@@ -21,12 +23,14 @@ async function waitForIframeHandshake(timeout: number = 500) {
     const iframeHandshakePromise = new Promise((resolve, reject) => {
       listener = (e: MessageEvent) => {
         logger.debug("iframe ready message", e.data, window.location.href);
-        if (e.data.type === MessageType.EXT_IFRAME_HANDSHAKE_RESP) {
+        if (e.data.action === MessageType.EXT_IFRAME_HANDSHAKE_RESP) {
           if (e.data.extId === chrome.runtime.id) {
             resolve(undefined);
           } else {
             reject(new Error("Unexpected message from iframe: " + JSON.stringify(e.data)));
           }
+        } else if (e.data.action === MessageType.EXT_SELECTION_INFO_RESP) {
+          pendingSelection = e.data.selectionInfo;
         }
       };
 
@@ -62,26 +66,6 @@ async function init() {
   await waitForIframeHandshake();
   logger.debug("iframe ready", window.location.href);
 
-  const port = chrome.runtime.connect({ name: "content-background-port" });
-
-  await new Promise((resolve, reject) => {
-    const connectionMsgListener = (message: PortMessage) => {
-      if (message.action === "connected") {
-        logger.debug("Received connection acknowledgment from background script:", message);
-        resolve(undefined);
-      } else {
-        logger.log("Unexpected message from background script while waiting for connection acknowledgement:", message);
-        reject(new Error("Unexpected message from background script"));
-      }
-
-      // remove this listener after first message
-      port.onMessage.removeListener(connectionMsgListener);
-    };
-
-    port.onMessage.addListener(connectionMsgListener);
-  });
-
-  let pendingSelection: SelectionInfo | null = null;
   let allPromptInputs = new Set<Element>();
 
   const getPromptElement = () => {
@@ -104,21 +88,21 @@ async function init() {
     return inputElements;
   };
 
-  port.onMessage.addListener((message) => {
-    if (message.action === "getSelection") {
-      logger.debug("Received response:", message);
+  window.addEventListener("message", (e) => {
+    if (e.data.action === MessageType.EXT_SELECTION_INFO_RESP) {
+      logger.debug("Received response:", e);
 
       const newInputElements = getPromptElement();
       newInputElements.forEach((el) => allPromptInputs.add(el));
 
       if (allPromptInputs.size === 0) {
         logger.debug("No prompt input elements found yet.");
-        pendingSelection = message.selectionInfo;
+        pendingSelection = e.data.selectionInfo;
         return;
       }
 
-      if (message.selectionInfo) {
-        injectText(message.selectionInfo);
+      if (e.data.selectionInfo) {
+        injectText(e.data.selectionInfo);
       }
     }
   });
@@ -139,9 +123,12 @@ async function init() {
       if (pendingSelection) {
         injectText(pendingSelection, newInputElements);
       } else {
-        port.postMessage({
-          action: "getSelection",
-        });
+        window.parent.postMessage(
+          {
+            action: MessageType.EXT_SELECTION_INFO_REQ,
+          },
+          "*"
+        );
       }
     }
 

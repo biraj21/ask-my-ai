@@ -1,5 +1,63 @@
 import { URLs, MessageType } from "./constants";
 import { logger } from "./logger";
+import type { SelectionInfo } from "./types";
+import { ExtStorage } from "./storage";
+
+let iframe: HTMLIFrameElement | null = null;
+
+const sendSelectionInfoToIframe = (selectionInfo: SelectionInfo) => {
+  if (!iframe) {
+    return;
+  }
+
+  if (!iframe.contentWindow) {
+    return;
+  }
+
+  iframe.contentWindow.postMessage(
+    {
+      action: MessageType.EXT_SELECTION_INFO_RESP,
+      selectionInfo,
+    },
+    "*"
+  );
+};
+
+window.onmessage = async (e) => {
+  if (!iframe) {
+    return;
+  }
+
+  if (!iframe.contentWindow) {
+    logger.error("iframe.contentWindow is undefined");
+    return;
+  }
+
+  if (e.data.action === MessageType.EXT_IFRAME_HANDSHAKE_INIT) {
+    if (e.data.extId === chrome.runtime.id) {
+      iframe.contentWindow.postMessage(
+        {
+          action: MessageType.EXT_IFRAME_HANDSHAKE_RESP,
+          extId: chrome.runtime.id,
+        },
+        "*"
+      );
+    } else {
+      logger.error("Unexpected message from iframe: " + JSON.stringify(e.data));
+    }
+  } else if (e.data.action === MessageType.EXT_SELECTION_INFO_REQ) {
+    const selectionInfo = await ExtStorage.session.getSelectionInfo();
+    if (selectionInfo) {
+      sendSelectionInfoToIframe(selectionInfo);
+    }
+  }
+};
+
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.action === MessageType.EXT_SELECTION_INFO_SAVED) {
+    sendSelectionInfoToIframe(message.selectionInfo);
+  }
+});
 
 // Load saved preferences
 document.addEventListener("DOMContentLoaded", async () => {
@@ -17,10 +75,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     select.appendChild(option);
   }
 
-  const result = await chrome.storage.local.get("selectedAI");
-  const selectedAi = result.selectedAI in URLs ? result.selectedAI : Object.keys(URLs)[0];
-  loadAIInIframe(selectedAi);
-  select.value = selectedAi;
+  let selectedAI = await ExtStorage.local.getSelectedAI();
+  selectedAI = selectedAI in URLs ? selectedAI : Object.keys(URLs)[0];
+  select.value = selectedAI;
+  loadAIInIframe(selectedAI);
 
   select.addEventListener("change", (e) => {
     const selectedAI = (e.target as HTMLSelectElement).value;
@@ -31,7 +89,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function loadAIInIframe(aiType: keyof typeof URLs) {
   const currentAiConfig = URLs[aiType];
 
-  chrome.storage.local.set({ selectedAI: aiType });
+  ExtStorage.local.setSelectedAI(aiType);
 
   // Show the AI container with loading message
   const container = document.getElementById("ai-container");
@@ -45,47 +103,22 @@ async function loadAIInIframe(aiType: keyof typeof URLs) {
     oldIframe.remove();
   }
 
-  const iframe = document.createElement("iframe");
-  iframe.id = "ai-iframe";
-  iframe.style.cssText = "width: 100%; height: 100%; border: none;";
-  iframe.allow = "camera; clipboard-write; fullscreen; microphone; geolocation";
-  iframe.src = currentAiConfig.url;
+  const newIframe = document.createElement("iframe");
+  iframe = newIframe;
+  newIframe.id = "ai-iframe";
+  newIframe.style.cssText = "width: 100%; height: 100%; border: none;";
+  newIframe.allow = "camera; clipboard-write; fullscreen; microphone; geolocation";
+  newIframe.src = currentAiConfig.url;
 
   // Append iframe to container
-  container.appendChild(iframe);
+  container.appendChild(newIframe);
   container.style.display = "block";
 
-  window.onmessage = (e) => {
-    if (e.data.type === MessageType.EXT_IFRAME_HANDSHAKE_INIT) {
-      if (e.data.extId === chrome.runtime.id) {
-        if (!iframe.contentWindow) {
-          logger.error("iframe.contentWindow is undefined");
-          return;
-        }
-
-        iframe.contentWindow.postMessage(
-          {
-            type: MessageType.EXT_IFRAME_HANDSHAKE_RESP,
-            extId: chrome.runtime.id,
-          },
-          "*"
-        );
-      } else {
-        logger.error("Unexpected message from iframe: " + JSON.stringify(e.data));
-      }
-    }
+  newIframe.onload = async () => {
+    logger.log(`✅ Successfully loaded ${aiType} in iframe (${newIframe.id})!`);
   };
 
-  iframe.onload = async () => {
-    logger.log(`✅ Successfully loaded ${aiType} in iframe (${iframe.id})!`);
-
-    if (!iframe.contentWindow) {
-      logger.error("iframe.contentWindow is undefined");
-      return;
-    }
-  };
-
-  iframe.onerror = (e) => {
+  newIframe.onerror = (e) => {
     logger.error(`❌ Failed to load ${aiType} in iframe:`, e);
 
     // Fallback: show a message with link to open in new tab
@@ -105,9 +138,9 @@ async function loadAIInIframe(aiType: keyof typeof URLs) {
     `;
 
     // Clear iframe and show fallback
-    iframe.src = "about:blank";
-    iframe.srcdoc = "";
-    iframe.style.display = "none";
+    newIframe.src = "about:blank";
+    newIframe.srcdoc = "";
+    newIframe.style.display = "none";
 
     // Replace container content with fallback
     const container = document.getElementById("ai-container");

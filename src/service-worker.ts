@@ -1,9 +1,10 @@
-import { ContextMenu } from "./constants";
+import { ContextMenu, MessageType } from "./constants";
 import { logger } from "./logger";
-import type { PortConnection, SelectionInfo } from "./types";
+import type { SelectionInfo } from "./types";
+import { ExtStorage } from "./storage";
 
 const contextMenuTitleWithSelectedAi = async () => {
-  const { selectedAI } = await chrome.storage.local.get("selectedAI");
+  const selectedAI = await ExtStorage.local.getSelectedAI();
   return selectedAI ? `Ask my AI (${selectedAI})` : "Ask my AI";
 };
 
@@ -75,26 +76,38 @@ chrome.contextMenus.onClicked.addListener(async function (info, tab) {
         return;
       }
 
-      const prevResult = await chrome.storage.session.get("selectionInfo");
-      const selectedAIResult = await chrome.storage.local.get("selectedAI");
-
+      // prepare selection info
+      const prevSelectionInfo = await ExtStorage.session.getSelectionInfo();
+      const selectedAI = await ExtStorage.local.getSelectedAI();
       const selectionInfo: SelectionInfo = {
         text: formatSelectionText(info.selectionText, tab),
         tabUrl: tab.url || "wtf",
         tabTitle: tab.title || "wtf",
         timestamp: Date.now(),
-        previousAi: prevResult.selectionInfo?.currentAi || null,
-        currentAi: selectedAIResult.selectedAI || null,
+        previousAi: prevSelectionInfo?.currentAi || null,
+        currentAi: selectedAI || null,
       };
 
-      chrome.storage.session.set({ selectionInfo: selectionInfo });
+      // save selection info in storage
+      await ExtStorage.session.setSelectionInfo(selectionInfo);
 
-      for (const connection of activeConnections) {
-        logger.debug(`Sending selection text via port for tab ${tab.url}`);
-        connection.port.postMessage({
-          action: "getSelection",
-          selectionInfo,
-        });
+      // send selection info to side panel
+      let sent = false;
+      let i = 0;
+      for (; i < 5; ++i) {
+        try {
+          logger.log(`Sending selection info to side panel (attempt ${i + 1})`);
+          await chrome.runtime.sendMessage({ action: MessageType.EXT_SELECTION_INFO_SAVED, selectionInfo });
+          sent = true;
+          break;
+        } catch (error) {
+          logger.error("Error sending selection info to side panel:", error);
+          await new Promise((resolve) => setTimeout(resolve, 50));
+        }
+      }
+
+      if (!sent) {
+        logger.error(`Failed to send selection info to side panel after ${i} attempts`);
       }
     } catch (error) {
       logger.error("Error handling Ask my AI:", error);
@@ -111,66 +124,3 @@ ${text}
 
   return formatted;
 }
-
-// Store active connections
-const activeConnections = new Set<PortConnection>();
-
-// Listen for connections from content scripts
-chrome.runtime.onConnect.addListener(async (port) => {
-  logger.debug("New connection:", port);
-
-  if (port.name !== "content-background-port") {
-    return;
-  }
-
-  // Store the connection with tab info
-
-  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-  const tab = tabs[0];
-
-  const connection: PortConnection = {
-    port,
-    tabUrl: tab.url || "wtf",
-    tabTitle: tab.title || "wtf",
-    connectedAt: Date.now(),
-  };
-
-  activeConnections.add(connection);
-
-  // send connection acknowledgment
-  port.postMessage({ action: "connected", info: connection });
-
-  // Listen for messages from this content script
-  port.onMessage.addListener(async (message) => {
-    logger.debug("Received message from content script:", message);
-
-    switch (message.action) {
-      case "getSelection":
-        const result = await chrome.storage.session.get("selectionInfo");
-        const selectedAIResult = await chrome.storage.local.get("selectedAI");
-
-        if (result.selectionInfo) {
-          const selectionInfo: SelectionInfo = {
-            ...result.selectionInfo,
-            previousAi: result.selectionInfo.currentAi || null,
-            currentAi: selectedAIResult.selectedAI || null,
-          };
-
-          // Send response back through the port
-          port.postMessage({
-            action: "getSelection",
-            selectionInfo,
-          });
-        }
-
-        break;
-    }
-  });
-
-  // Handle disconnect
-  port.onDisconnect.addListener(() => {
-    logger.debug(`Connection disconnected for port ${port}`);
-    activeConnections.delete(connection);
-    logger.debug(`Active connections: ${activeConnections.size}`);
-  });
-});
