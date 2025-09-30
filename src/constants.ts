@@ -34,3 +34,7 @@ export const URLs: Record<AiType, AiConfig> = {
 export const ContextMenu = {
   AskMyAi: "ask-my-ai",
 };
+
+export const MessageType = {
+  EXT_IFRAME_READY: "EXT_IFRAME_READY",
+};

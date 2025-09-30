@@ -1,4 +1,4 @@
-import { URLs } from "./constants";
+import { URLs, MessageType } from "./constants";
 
 // Load saved preferences
 document.addEventListener("DOMContentLoaded", async () => {
@@ -59,10 +59,24 @@ async function loadAIInIframe(aiType: keyof typeof URLs) {
 
   iframe.onload = async () => {
     console.log(`✅ Successfully loaded ${aiType} in iframe!`);
+
+    if (!iframe.contentWindow) {
+      console.error("iframe.contentWindow is undefined");
+      return;
+    }
+
+    iframe.contentWindow.postMessage(
+      {
+        type: MessageType.EXT_IFRAME_READY,
+        extId: chrome.runtime.id,
+      },
+      "*"
+    );
   };
 
   iframe.onerror = (e) => {
     console.error(`❌ Failed to load ${aiType} in iframe:`, e);
+
     // Fallback: show a message with link to open in new tab
 
     // Create fallback content without inline scripts

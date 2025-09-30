@@ -1,6 +1,52 @@
+import { MessageType } from "./constants";
 import type { PortMessage, SelectionInfo } from "./types";
 
+async function waitForIframeReady(timeout: number = 3_000) {
+  let listener: ((event: MessageEvent) => void) | null = null;
+  let timeoutId: number | undefined = undefined;
+  try {
+    const iframeReadyPromise = new Promise((resolve, reject) => {
+      listener = (event: MessageEvent) => {
+        if (event.data.type === MessageType.EXT_IFRAME_READY) {
+          if (event.data.extId === chrome.runtime.id) {
+            resolve(undefined);
+          } else {
+            reject(new Error("Unexpected message from iframe: " + JSON.stringify(event.data)));
+          }
+        }
+      };
+
+      window.addEventListener("message", listener);
+    });
+
+    const timeoutPromise = new Promise((_resolve, reject) => {
+      timeoutId = setTimeout(() => {
+        reject(new Error("Timeout waiting for iframe ready"));
+      }, timeout);
+    });
+
+    console.debug("birajlog waiting for iframe ready", window.location.href);
+    await Promise.race([iframeReadyPromise, timeoutPromise]);
+  } catch (err) {
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
+
+    if (listener) {
+      window.removeEventListener("message", listener);
+    }
+  }
+}
+
 async function init() {
+  const isIframe = window.self !== window.top;
+  if (!isIframe) {
+    return;
+  }
+
+  await waitForIframeReady();
+  console.debug("iframe ready");
+
   const port = chrome.runtime.connect({ name: "content-background-port" });
 
   await new Promise((resolve, reject) => {
@@ -74,13 +120,10 @@ async function init() {
       allPromptInputs.add(elem);
     }
 
-    console.debug("birajlog allPromptInputs.size", allPromptInputs.size);
-
     if (allPromptInputs.size > sizeBefore) {
       if (pendingSelection) {
         injectText(pendingSelection, newInputElements);
       } else {
-        console.debug("birajlog sending postMessage to getSelection");
         port.postMessage({
           action: "getSelection",
         });
@@ -97,9 +140,8 @@ async function init() {
   fuck();
 
   function injectText(selection: SelectionInfo, inputElementsArg?: Element[]) {
-    console.debug("birajlog injectText selection", selection);
-    if (selection.previousAi === selection.currentAi && Date.now() - selection.timestamp > 3000) {
-      console.debug("selected text older than 3 seconds.. skipping");
+    if (selection.previousAi === selection.currentAi && Date.now() - selection.timestamp > 5000) {
+      console.debug("selected text older than 5 seconds.. skipping");
       return;
     }
 
@@ -135,16 +177,11 @@ async function init() {
   }
 }
 
-const ignorePatterns = ["isolated-segment"];
-
-function main() {
-  if (ignorePatterns.some((pattern) => window.location.href.includes(pattern))) {
-    return;
-  }
-
-  const isIframe = window.self !== window.top;
-  if (isIframe) {
-    init();
+async function main() {
+  try {
+    await init();
+  } catch (error) {
+    console.error(`Error during init ${window.location.href}:`, error);
   }
 }
 
