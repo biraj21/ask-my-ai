@@ -23,6 +23,28 @@ chrome.runtime.onInstalled.addListener(async () => {
     contexts: ["selection"],
   });
 
+  // Child menu items (submenus)
+  chrome.contextMenus.create({
+    id: ContextMenu.Explain,
+    parentId: ContextMenu.AskMyAi, // This creates the nesting
+    title: "Explain",
+    contexts: ["selection"],
+  });
+
+  chrome.contextMenus.create({
+    id: ContextMenu.Summarize,
+    parentId: ContextMenu.AskMyAi,
+    title: "Summarize",
+    contexts: ["selection"],
+  });
+
+  chrome.contextMenus.create({
+    id: ContextMenu.QuizMe,
+    parentId: ContextMenu.AskMyAi,
+    title: "Quiz Me",
+    contexts: ["selection"],
+  });
+
   const rule: chrome.declarativeNetRequest.Rule = {
     id: 1,
     priority: 1,
@@ -62,7 +84,14 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 
 // Handle context menu clicks
 chrome.contextMenus.onClicked.addListener(async function (info, tab) {
-  if (info.menuItemId === ContextMenu.AskMyAi) {
+  const validMenuIds = [ContextMenu.AskMyAi, ContextMenu.Explain, ContextMenu.Summarize, ContextMenu.QuizMe];
+
+  if (typeof info.menuItemId !== "string") {
+    logger.error("menuItemId is not a string");
+    return;
+  }
+
+  if (validMenuIds.includes(info.menuItemId)) {
     try {
       if (!tab) {
         throw new Error("tab is undefined");
@@ -77,7 +106,7 @@ chrome.contextMenus.onClicked.addListener(async function (info, tab) {
       }
 
       const selectionInfo: SelectionInfo = {
-        text: formatSelectionText(info.selectionText, tab),
+        text: formatSelectionText(info.selectionText, tab, info.menuItemId),
         tabUrl: tab.url || "wtf",
         tabTitle: tab.title || "wtf",
         timestamp: Date.now(),
@@ -114,12 +143,53 @@ chrome.contextMenus.onClicked.addListener(async function (info, tab) {
   }
 });
 
-function formatSelectionText(text: string, tab: chrome.tabs.Tab) {
-  const formatted = `hey i'm reading this blog at ${tab.url} with title '${tab.title}'. read the blog and explain this snippet from it:
-"""
+function formatSelectionText(text: string, tab: chrome.tabs.Tab, menuItemId: string) {
+  const baseContext = `Yo I'm reading this page titled '${tab.title}' at ${tab.url}.`;
+
+  let formatted = "";
+
+  switch (menuItemId) {
+    case ContextMenu.Explain:
+      formatted = `${baseContext}
+
+Explain this snippet from it:
+
+<snippet>
 ${text}
-"""
-`;
+</snippet>`;
+      break;
+
+    case ContextMenu.Summarize:
+      formatted = `${baseContext}
+
+Summarize the key points from this text. Use formatting (headers, bullets, etc.) to make it easy to scan. Be concise but don't lose important details.
+
+<snippet>
+${text}
+</snippet>`;
+      break;
+
+    case ContextMenu.QuizMe:
+      formatted = `${baseContext}
+
+Create a quiz to test my understanding of this text. Ask one question at a time and wait for my answer before continuing. Use a mix of question types: multiple choice, true/false, and short answer.
+
+<snippet>
+${text}
+</snippet>`;
+      break;
+
+    default:
+      // Default case for parent menu or unknown
+      formatted = `${baseContext}
+      
+Read the page and help me understand this snippet:
+
+<snippet>
+${text}
+</snippet>`;
+      break;
+  }
 
   return formatted;
 }
