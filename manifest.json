@@ -14,7 +14,9 @@
     "https://scira.ai/",
     "https://*.scira.ai/",
     "https://*.deepseek.com/*",
-    "https://*.mistral.ai/*"
+    "https://*.mistral.ai/*",
+    "https://perplexity.ai/*",
+    "https://*.perplexity.ai/*"
   ],
   "background": {
     "service_worker": "src/service-worker.js"
@@ -34,7 +36,9 @@
         "https://scira.ai/*",
         "https://*.scira.ai/*",
         "https://*.deepseek.com/*",
-        "https://*.mistral.ai/*"
+        "https://*.mistral.ai/*",
+        "https://perplexity.ai/*",
+        "https://*.perplexity.ai/*"
       ],
       "js": ["src/content.ts"],
       "all_frames": true

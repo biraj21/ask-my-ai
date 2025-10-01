@@ -29,6 +29,10 @@ export const URLs: Record<AiType, AiConfig> = {
     label: "Mistral Le Chat",
     url: "https://chat.mistral.ai/chat",
   },
+  perplexity: {
+    label: "Perplexity (paste manually)",
+    url: "https://perplexity.ai/",
+  },
 };
 
 export const ContextMenu = {

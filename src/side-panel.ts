@@ -2,6 +2,7 @@ import { URLs, MessageAction } from "./constants";
 import { logger } from "./logger";
 import type { AiType, ExtIframeHandshakeRespMessage, SelectionInfoRespMessage } from "./types";
 import { ExtStorage } from "./storage";
+import { copyToClipboard } from "./utils";
 
 let iframe: HTMLIFrameElement | null = null;
 
@@ -49,7 +50,7 @@ window.onmessage = async (e) => {
   }
 };
 
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener(async (message) => {
   if (message.action === MessageAction.SELECTION_INFO_SAVED) {
     const msg: SelectionInfoRespMessage = {
       action: MessageAction.SELECTION_INFO_RESP,
@@ -60,6 +61,8 @@ chrome.runtime.onMessage.addListener((message) => {
     };
 
     sendMessageToContent(msg);
+
+    await copyToClipboard(msg.selectionInfo.text);
   }
 });
 
