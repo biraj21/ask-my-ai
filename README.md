@@ -53,9 +53,11 @@ _Coming soon - extension will be published to Chrome Web Store_
 
 - ChatGPT (chatgpt.com)
 - Claude (claude.ai)
-- Google Gemini (gemini.google.com)
+- Gemini (gemini.google.com)
 - Scira AI (scira.ai)
 - DeepSeek Chat (chat.deepseek.com)
+- Mistral Le Chat (chat.mistral.ai)
+- Google (since it now has AI mode)
 
 ## Settings
 
