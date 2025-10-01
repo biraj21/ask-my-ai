@@ -39,9 +39,9 @@ chrome.runtime.onInstalled.addListener(async () => {
   });
 
   chrome.contextMenus.create({
-    id: ContextMenu.QuizMe,
+    id: ContextMenu.Simplify,
     parentId: ContextMenu.AskMyAi,
-    title: "Quiz Me",
+    title: "ELI5 (Simplify)",
     contexts: ["selection"],
   });
 
@@ -84,7 +84,7 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 
 // Handle context menu clicks
 chrome.contextMenus.onClicked.addListener(async function (info, tab) {
-  const validMenuIds = [ContextMenu.AskMyAi, ContextMenu.Explain, ContextMenu.Summarize, ContextMenu.QuizMe];
+  const validMenuIds = [ContextMenu.AskMyAi, ContextMenu.Explain, ContextMenu.Summarize, ContextMenu.Simplify];
 
   if (typeof info.menuItemId !== "string") {
     logger.error("menuItemId is not a string");
@@ -169,10 +169,10 @@ ${text}
 </snippet>`;
       break;
 
-    case ContextMenu.QuizMe:
+    case ContextMenu.Simplify:
       formatted = `${baseContext}
 
-Create a quiz to test my understanding of this text. Ask one question at a time and wait for my answer before continuing. Use a mix of question types: multiple choice, true/false, and short answer.
+Explain this like I'm 5 (ELI5) - use simple language and everyday examples:
 
 <snippet>
 ${text}

@@ -39,7 +39,7 @@ export const ContextMenu = {
   AskMyAi: "ask-my-ai",
   Explain: "explain",
   Summarize: "summarize",
-  QuizMe: "quiz-me",
+  Simplify: "simplify",
 };
 
 export const MessageAction = {
