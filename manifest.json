@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Ask My AI",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Select any text on any webpage and instantly ask your preferred AI to explain it, all within a convenient sidebar.",
   "permissions": ["contextMenus", "storage", "sidePanel", "declarativeNetRequestWithHostAccess"],
   "host_permissions": [
