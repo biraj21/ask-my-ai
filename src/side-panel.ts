@@ -1,61 +1,65 @@
-import { URLs, MessageType } from "./constants";
+import { URLs, MessageAction } from "./constants";
 import { logger } from "./logger";
-import type { SelectionInfo } from "./types";
+import type { AiType, ExtIframeHandshakeRespMessage, SelectionInfoRespMessage } from "./types";
 import { ExtStorage } from "./storage";
 
 let iframe: HTMLIFrameElement | null = null;
 
-const sendSelectionInfoToIframe = (selectionInfo: SelectionInfo) => {
+const sendMessageToContent = (msg: ExtIframeHandshakeRespMessage | SelectionInfoRespMessage) => {
   if (!iframe) {
+    logger.warn("sendMessageToContent(): iframe is undefined");
     return;
   }
 
   if (!iframe.contentWindow) {
+    logger.warn("sendMessageToContent():iframe.contentWindow is undefined");
     return;
   }
 
-  iframe.contentWindow.postMessage(
-    {
-      action: MessageType.EXT_SELECTION_INFO_RESP,
-      selectionInfo,
-    },
-    "*"
-  );
+  iframe.contentWindow.postMessage(msg, "*");
 };
 
 window.onmessage = async (e) => {
-  if (!iframe) {
-    return;
-  }
-
-  if (!iframe.contentWindow) {
-    logger.error("iframe.contentWindow is undefined");
-    return;
-  }
-
-  if (e.data.action === MessageType.EXT_IFRAME_HANDSHAKE_INIT) {
+  if (e.data.action === MessageAction.EXT_IFRAME_HANDSHAKE_INIT) {
     if (e.data.extId === chrome.runtime.id) {
-      iframe.contentWindow.postMessage(
-        {
-          action: MessageType.EXT_IFRAME_HANDSHAKE_RESP,
-          extId: chrome.runtime.id,
-        },
-        "*"
-      );
+      const msg: ExtIframeHandshakeRespMessage = {
+        action: MessageAction.EXT_IFRAME_HANDSHAKE_RESP,
+        extId: chrome.runtime.id,
+      };
+      sendMessageToContent(msg);
     } else {
       logger.error("Unexpected message from iframe: " + JSON.stringify(e.data));
     }
-  } else if (e.data.action === MessageType.EXT_SELECTION_INFO_REQ) {
+  } else if (e.data.action === MessageAction.SELECTION_INFO_REQ) {
     const selectionInfo = await ExtStorage.session.getSelectionInfo();
     if (selectionInfo) {
-      sendSelectionInfoToIframe(selectionInfo);
+      const [currentAi, previousAi] = await Promise.all([
+        ExtStorage.local.getSelectedAI(),
+        ExtStorage.local.getPrevSelectedAI(),
+      ]);
+
+      const msg: SelectionInfoRespMessage = {
+        action: MessageAction.SELECTION_INFO_RESP,
+        selectionInfo,
+        currentAi,
+        previousAi,
+      };
+      sendMessageToContent(msg);
     }
   }
 };
 
 chrome.runtime.onMessage.addListener((message) => {
-  if (message.action === MessageType.EXT_SELECTION_INFO_SAVED) {
-    sendSelectionInfoToIframe(message.selectionInfo);
+  if (message.action === MessageAction.SELECTION_INFO_SAVED) {
+    const msg: SelectionInfoRespMessage = {
+      action: MessageAction.SELECTION_INFO_RESP,
+      selectionInfo: message.selectionInfo,
+      forced: true,
+      currentAi: null,
+      previousAi: null,
+    };
+
+    sendMessageToContent(msg);
   }
 });
 
@@ -75,21 +79,31 @@ document.addEventListener("DOMContentLoaded", async () => {
     select.appendChild(option);
   }
 
+  select.addEventListener("change", async (e) => {
+    try {
+      await loadAIInIframe((e.target as HTMLSelectElement).value as AiType);
+    } catch (error) {
+      logger.error("select change event listener error:", error);
+    }
+  });
+
   let selectedAI = await ExtStorage.local.getSelectedAI();
-  selectedAI = selectedAI in URLs ? selectedAI : Object.keys(URLs)[0];
+  selectedAI = selectedAI && selectedAI in URLs ? selectedAI : (Object.keys(URLs)[0] as AiType);
   select.value = selectedAI;
   loadAIInIframe(selectedAI);
-
-  select.addEventListener("change", (e) => {
-    const selectedAI = (e.target as HTMLSelectElement).value;
-    loadAIInIframe(selectedAI as keyof typeof URLs);
-  });
 });
 
-async function loadAIInIframe(aiType: keyof typeof URLs) {
+async function loadAIInIframe(aiType: AiType) {
   const currentAiConfig = URLs[aiType];
 
-  ExtStorage.local.setSelectedAI(aiType);
+  // save currently selected AI in storage as previous AI
+  const prevSelectedAi = await ExtStorage.local.getSelectedAI();
+  if (prevSelectedAi) {
+    await ExtStorage.local.setPrevSelectedAI(prevSelectedAi);
+  }
+
+  // save currently selected AI in storage
+  await ExtStorage.local.setSelectedAI(aiType);
 
   // Show the AI container with loading message
   const container = document.getElementById("ai-container");

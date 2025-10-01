@@ -35,7 +35,7 @@ export const ContextMenu = {
   AskMyAi: "ask-my-ai",
 };
 
-export const MessageType = {
+export const MessageAction = {
   /**
    * Iframe content script must send this to the side panel to initiate handshake.
    */
@@ -50,17 +50,17 @@ export const MessageType = {
    * Service worker must save selection info to storage and send this to the side panel to forward
    * it to the iframe content script.
    */
-  EXT_SELECTION_INFO_SAVED: "EXT_SELECTION_INFO_SAVED",
+  SELECTION_INFO_SAVED: "SELECTION_INFO_SAVED",
 
   /**
    * Service worker must send this to the side panel to trigger selection info request.
    */
-  EXT_SELECTION_INFO_REQ: "EXT_SELECTION_INFO_REQ",
+  SELECTION_INFO_REQ: "SELECTION_INFO_REQ",
 
   /**
    * Side panel must send this to the iframe content script to respond to selection info request.
    */
-  EXT_SELECTION_INFO_RESP: "EXT_SELECTION_INFO_RESP",
+  SELECTION_INFO_RESP: "SELECTION_INFO_RESP",
 };
 
 export const EXT_NAME = "Ask my AI";

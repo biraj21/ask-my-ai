@@ -1,8 +1,8 @@
-import { MessageType } from "./constants";
+import { MessageAction } from "./constants";
 import { logger } from "./logger";
-import type { SelectionInfo } from "./types";
+import type { ExtIframeHandshakeRespMessage, SelectionInfoRespMessage } from "./types";
 
-let pendingSelection: SelectionInfo | null = null;
+let pendingSelection: SelectionInfoRespMessage | null = null;
 
 async function waitForIframeHandshake(timeout: number = 500) {
   let listener: ((event: MessageEvent) => void) | null = null;
@@ -13,7 +13,7 @@ async function waitForIframeHandshake(timeout: number = 500) {
     // init handshake
     window.parent.postMessage(
       {
-        action: MessageType.EXT_IFRAME_HANDSHAKE_INIT,
+        action: MessageAction.EXT_IFRAME_HANDSHAKE_INIT,
         extId: chrome.runtime.id,
       },
       "*"
@@ -22,15 +22,27 @@ async function waitForIframeHandshake(timeout: number = 500) {
     // set up a promise to wait for handshake response
     const iframeHandshakePromise = new Promise((resolve, reject) => {
       listener = (e: MessageEvent) => {
-        logger.debug("iframe ready message", e.data, window.location.href);
-        if (e.data.action === MessageType.EXT_IFRAME_HANDSHAKE_RESP) {
-          if (e.data.extId === chrome.runtime.id) {
+        logger.debug("iframe handshake message listener received", e.data, window.location.href);
+        if (e.data.action === MessageAction.EXT_IFRAME_HANDSHAKE_RESP) {
+          const msg: ExtIframeHandshakeRespMessage = {
+            action: MessageAction.EXT_IFRAME_HANDSHAKE_RESP,
+            extId: chrome.runtime.id,
+          };
+          if (msg.extId === chrome.runtime.id) {
             resolve(undefined);
           } else {
             reject(new Error("Unexpected message from iframe: " + JSON.stringify(e.data)));
           }
-        } else if (e.data.action === MessageType.EXT_SELECTION_INFO_RESP) {
-          pendingSelection = e.data.selectionInfo;
+        } else if (e.data.action === MessageAction.SELECTION_INFO_RESP) {
+          const msg: SelectionInfoRespMessage = {
+            action: MessageAction.SELECTION_INFO_RESP,
+            selectionInfo: e.data.selectionInfo,
+            forced: e.data.forced,
+            currentAi: e.data.currentAi,
+            previousAi: e.data.previousAi,
+          };
+
+          pendingSelection = msg;
         }
       };
 
@@ -89,7 +101,15 @@ async function init() {
   };
 
   window.addEventListener("message", (e) => {
-    if (e.data.action === MessageType.EXT_SELECTION_INFO_RESP) {
+    if (e.data.action === MessageAction.SELECTION_INFO_RESP) {
+      const msg: SelectionInfoRespMessage = {
+        action: MessageAction.SELECTION_INFO_RESP,
+        selectionInfo: e.data.selectionInfo,
+        forced: e.data.forced,
+        currentAi: e.data.currentAi,
+        previousAi: e.data.previousAi,
+      };
+
       logger.debug("Received response:", e);
 
       const newInputElements = getPromptElement();
@@ -97,13 +117,11 @@ async function init() {
 
       if (allPromptInputs.size === 0) {
         logger.debug("No prompt input elements found yet.");
-        pendingSelection = e.data.selectionInfo;
+        pendingSelection = msg;
         return;
       }
 
-      if (e.data.selectionInfo) {
-        injectText(e.data.selectionInfo);
-      }
+      injectText(msg);
     }
   });
 
@@ -125,7 +143,7 @@ async function init() {
       } else {
         window.parent.postMessage(
           {
-            action: MessageType.EXT_SELECTION_INFO_REQ,
+            action: MessageAction.SELECTION_INFO_REQ,
           },
           "*"
         );
@@ -141,15 +159,20 @@ async function init() {
 
   fuck();
 
-  function injectText(selection: SelectionInfo, inputElementsArg?: Element[]) {
-    if (selection.previousAi === selection.currentAi && Date.now() - selection.timestamp > 5000) {
+  function injectText(selection: SelectionInfoRespMessage, inputElementsArg?: Element[]) {
+    logger.debug("injecting selection", selection, "into input:", inputElementsArg);
+    if (
+      !selection.forced &&
+      selection.previousAi === selection.currentAi &&
+      Date.now() - selection.selectionInfo.timestamp > 5000
+    ) {
       logger.debug("selected text older than 5 seconds.. skipping");
       return;
     }
 
     const elements = new Set(inputElementsArg || allPromptInputs || []);
 
-    const text = selection.text;
+    const text = selection.selectionInfo.text;
 
     for (const inputElement of elements) {
       logger.debug("injecting text", text, "into input:", inputElement);

@@ -1,6 +1,6 @@
-import { ContextMenu, MessageType } from "./constants";
+import { ContextMenu, MessageAction } from "./constants";
 import { logger } from "./logger";
-import type { SelectionInfo } from "./types";
+import type { SelectionInfo, SelectionInfoSavedMessage } from "./types";
 import { ExtStorage } from "./storage";
 
 const contextMenuTitleWithSelectedAi = async () => {
@@ -76,16 +76,11 @@ chrome.contextMenus.onClicked.addListener(async function (info, tab) {
         return;
       }
 
-      // prepare selection info
-      const prevSelectionInfo = await ExtStorage.session.getSelectionInfo();
-      const selectedAI = await ExtStorage.local.getSelectedAI();
       const selectionInfo: SelectionInfo = {
         text: formatSelectionText(info.selectionText, tab),
         tabUrl: tab.url || "wtf",
         tabTitle: tab.title || "wtf",
         timestamp: Date.now(),
-        previousAi: prevSelectionInfo?.currentAi || null,
-        currentAi: selectedAI || null,
       };
 
       // save selection info in storage
@@ -97,7 +92,11 @@ chrome.contextMenus.onClicked.addListener(async function (info, tab) {
       for (; i < 5; ++i) {
         try {
           logger.debug(`Sending selection info to side panel (attempt ${i + 1})`);
-          await chrome.runtime.sendMessage({ action: MessageType.EXT_SELECTION_INFO_SAVED, selectionInfo });
+          const msg: SelectionInfoSavedMessage = {
+            action: MessageAction.SELECTION_INFO_SAVED,
+            selectionInfo,
+          };
+          await chrome.runtime.sendMessage(msg);
           sent = true;
           break;
         } catch (error) {
