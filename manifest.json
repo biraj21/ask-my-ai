@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Ask My AI: Free ChatGPT, Claude, Perplexity Sidebar",
   "version": "0.0.3",
-  "description": "Your AI assistant, always one click away. Highlight text on any page to explain, summarize, or analyze with Claude, ChatGPT, DeepSeek, Perplexity, and more.",
+  "description": "Your AI assistant, always one click away. Highlight text on any page to explain with ChatGPT, Claude, DeepSeek, Perplexity, & more.",
   "permissions": ["contextMenus", "storage", "sidePanel", "declarativeNetRequestWithHostAccess"],
   "host_permissions": [
     "https://claude.ai/*",
