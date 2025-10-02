@@ -9,13 +9,13 @@ export const URLs: Record<AiType, AiConfig> = {
     label: "Claude",
     url: "https://claude.ai/new",
   },
-  google: {
-    label: "Google ",
-    url: "https://google.com/",
-  },
   gemini: {
     label: "Gemini",
     url: "https://gemini.google.com/",
+  },
+  aistudio: {
+    label: "Google AI Studio",
+    url: "https://aistudio.google.com/",
   },
   scira: {
     label: "Scira",
@@ -25,13 +25,17 @@ export const URLs: Record<AiType, AiConfig> = {
     label: "Deepseek",
     url: "https://chat.deepseek.com/",
   },
+  google: {
+    label: "Google ",
+    url: "https://google.com/",
+  },
+  perplexity: {
+    label: "Perplexity",
+    url: "https://perplexity.ai/",
+  },
   mistral: {
     label: "Mistral Le Chat",
     url: "https://chat.mistral.ai/chat",
-  },
-  perplexity: {
-    label: "Perplexity (paste manually)",
-    url: "https://perplexity.ai/",
   },
 };
 

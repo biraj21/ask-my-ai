@@ -1,6 +1,15 @@
 import type { MessageAction } from "./constants";
 
-export type AiType = "chatgpt" | "claude" | "google" | "gemini" | "scira" | "deepseek" | "mistral" | "perplexity";
+export type AiType =
+  | "chatgpt"
+  | "claude"
+  | "google"
+  | "gemini"
+  | "scira"
+  | "deepseek"
+  | "mistral"
+  | "perplexity"
+  | "aistudio";
 export type AiConfig = {
   label: string;
   url: string;

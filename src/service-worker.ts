@@ -55,10 +55,10 @@ chrome.runtime.onInstalled.addListener(async () => {
         { header: "x-frame-options", operation: "remove" },
         { header: "content-security-policy", operation: "remove" },
 
-        // Add CORS headers
-        { header: "access-control-allow-origin", operation: "set", value: "*" },
-        { header: "access-control-allow-methods", operation: "set", value: "*" },
-        { header: "access-control-allow-headers", operation: "set", value: "*" },
+        // [don't] Add CORS headers
+        // { header: "access-control-allow-origin", operation: "set", value: "*" },
+        // { header: "access-control-allow-methods", operation: "set", value: "*" },
+        // { header: "access-control-allow-headers", operation: "set", value: "*" },
       ],
     },
     condition: {
