@@ -24,7 +24,11 @@ Perfect for quickly understanding complex concepts, code snippets, technical ter
 
 ## Installation
 
-### Option 1: Load as Unpacked Extension (Developer Mode)
+### Option 1: From Chrome Web Store
+
+[Add to Chrome](https://chromewebstore.google.com/detail/ask-my-ai/clfbemdacihopdopaanknckjkgbpando) from Chrome Web Store.
+
+### Option 2: Load as Unpacked Extension (Developer Mode)
 
 1. **Download or clone** this repository to your computer
 2. **Install dependencies** - Run `pnpm install` in the project directory
@@ -36,10 +40,6 @@ Perfect for quickly understanding complex concepts, code snippets, technical ter
 8. **Done!** The extension is now installed
 
 > **Note:** After making code changes, run `pnpm build` again and click the refresh icon on the extension card in `chrome://extensions/`
-
-### Option 2: From Chrome Web Store
-
-_Coming soon - extension will be published to Chrome Web Store_
 
 ## How to Use
 
@@ -62,3 +62,14 @@ _Coming soon - extension will be published to Chrome Web Store_
 ## Settings
 
 Click the extension icon in your toolbar to choose your preferred AI platform.
+
+### Icons from
+
+https://lobehub.com/icons
+
+### Convert
+
+```
+cd images
+magick ss.png -resize 1280x800! -quality 100 ss-resized.jpg
+```
