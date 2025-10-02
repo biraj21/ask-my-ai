@@ -13,6 +13,7 @@ export type AiType =
 export type AiConfig = {
   label: string;
   url: string;
+  icon: string;
 };
 
 export interface SelectionInfo {

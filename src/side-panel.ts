@@ -68,31 +68,61 @@ chrome.runtime.onMessage.addListener(async (message) => {
 
 // Load saved preferences
 document.addEventListener("DOMContentLoaded", async () => {
-  // Update dropdown options based on enabled AIs
-  const select = document.getElementById("ai-select");
-  if (!(select instanceof HTMLSelectElement)) {
-    logger.error("AI select element not found!");
+  // Create icon sidebar
+  const sidebar = document.getElementById("ai-sidebar");
+  if (!sidebar) {
+    logger.error("AI sidebar element not found!");
     return;
   }
 
+  // Create icons for each AI
   for (const [key, value] of Object.entries(URLs)) {
-    const option = document.createElement("option");
-    option.value = key;
-    option.textContent = value.label;
-    select.appendChild(option);
+    const iconContainer = document.createElement("div");
+    iconContainer.className = "ai-icon";
+    iconContainer.dataset.aiType = key;
+    iconContainer.title = value.label;
+
+    // Load SVG content
+    try {
+      const iconUrl = chrome.runtime.getURL(value.icon);
+      const response = await fetch(iconUrl);
+      const svgContent = await response.text();
+      iconContainer.innerHTML = svgContent;
+    } catch (error) {
+      logger.error(`Failed to load icon for ${key}:`, error);
+      // Fallback to text
+      iconContainer.innerHTML = `<div style="color: white; font-size: 10px; text-align: center;">${value.label.substring(
+        0,
+        3
+      )}</div>`;
+    }
+
+    iconContainer.addEventListener("click", async () => {
+      try {
+        // Remove active class from all icons
+        sidebar.querySelectorAll(".ai-icon").forEach((icon) => icon.classList.remove("active"));
+        // Add active class to clicked icon
+        iconContainer.classList.add("active");
+
+        await loadAIInIframe(key as AiType);
+      } catch (error) {
+        logger.error("icon click event listener error:", error);
+      }
+    });
+
+    sidebar.appendChild(iconContainer);
   }
 
-  select.addEventListener("change", async (e) => {
-    try {
-      await loadAIInIframe((e.target as HTMLSelectElement).value as AiType);
-    } catch (error) {
-      logger.error("select change event listener error:", error);
-    }
-  });
-
+  // Set initial active AI
   let selectedAI = await ExtStorage.local.getSelectedAI();
   selectedAI = selectedAI && selectedAI in URLs ? selectedAI : (Object.keys(URLs)[0] as AiType);
-  select.value = selectedAI;
+
+  // Mark the selected AI as active
+  const activeIcon = sidebar.querySelector(`[data-ai-type="${selectedAI}"]`);
+  if (activeIcon) {
+    activeIcon.classList.add("active");
+  }
+
   loadAIInIframe(selectedAI);
 });
 
