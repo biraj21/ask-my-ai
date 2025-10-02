@@ -98,7 +98,9 @@ chrome.contextMenus.onClicked.addListener(async function (info, tab) {
       }
 
       // Open side panel
-      await chrome.sidePanel.open({ windowId: tab.windowId });
+      if (tab.windowId > 0) {
+        await chrome.sidePanel.open({ windowId: tab.windowId });
+      }
 
       if (!info.selectionText) {
         logger.error("No selection text found.");
