@@ -134,21 +134,6 @@ export const injectText = (text: string, element: Element) => {
   }
 };
 
-export const clearInput = (element: Element) => {
-  // clear the input by simulating user behavior
-  if ("focus" in element) {
-    (element as any).focus();
-  }
-
-  // backspace to delete
-  const backspaceEvent = new KeyboardEvent("keydown", {
-    key: "Backspace",
-    code: "Backspace",
-    bubbles: true,
-  });
-  element.dispatchEvent(backspaceEvent);
-};
-
 export const timeout = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
