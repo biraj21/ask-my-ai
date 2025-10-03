@@ -1,7 +1,7 @@
 import { MessageAction } from "./constants";
 import { logger } from "./logger";
 import type { ExtIframeHandshakeRespMessage, SelectionInfoRespMessage } from "./types";
-import { injectText, timeout } from "./utils";
+import { injectText, sleep } from "./utils";
 
 let pendingSelection: SelectionInfoRespMessage | null = null;
 
@@ -196,7 +196,7 @@ async function init() {
     }
 
     if (attempts <= 10) {
-      await timeout(500);
+      await sleep(500);
       fuck();
     } else {
       pendingSelection = null; // selection's consumed

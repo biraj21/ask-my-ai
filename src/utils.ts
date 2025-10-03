@@ -134,6 +134,6 @@ export const injectText = (text: string, element: Element) => {
   }
 };
 
-export const timeout = (ms: number) => {
+export const sleep = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
