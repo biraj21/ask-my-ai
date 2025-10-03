@@ -81,23 +81,66 @@ async function init() {
   let allPromptInputs = new Set<Element>();
 
   const getPromptElement = () => {
-    const inputElements = [];
-    let $el = document.querySelector("[contenteditable]");
-    if ($el) {
-      inputElements.push($el);
-    }
+    // Keywords to identify AI prompt inputs
+    const chatKeywords = [
+      "message",
+      "prompt",
+      "ask",
+      "chat",
+      "conversation",
+      "question",
 
-    $el = document.querySelector("textarea");
-    if ($el) {
-      inputElements.push($el);
-    }
+      // for google
+      "search",
+    ];
 
-    $el = document.querySelector("input[type=text]");
-    if ($el) {
-      inputElements.push($el);
-    }
+    const aiPlatformNames = [
+      "chatgpt",
+      "claude",
+      "gemini",
+      "perplexity",
+      "openai",
+      "anthropic",
+      "copilot",
+      "bard",
+      "deepseek",
+      "grok",
+      "mistral",
+    ];
 
-    return inputElements;
+    const keywords = [...chatKeywords, ...aiPlatformNames];
+
+    // Check if an element matches our keyword criteria
+    const isPromptInput = (element: Element): boolean => {
+      const attributesToCheck = [
+        element.id,
+        element.className,
+        element.getAttribute("aria-label"),
+        element.getAttribute("placeholder"),
+        element.getAttribute("data-placeholder"),
+        element.getAttribute("name"),
+      ];
+
+      // Check if any attribute contains any of our keywords (case-insensitive)
+      return attributesToCheck.some((attribute) => {
+        if (!attribute) {
+          return false;
+        }
+
+        const lowerCaseAttribute = attribute.toLowerCase();
+        return keywords.some((keyword) => lowerCaseAttribute.includes(keyword));
+      });
+    };
+
+    // Find all potential input elements
+    const allContentEditables = Array.from(document.querySelectorAll("[contenteditable]"));
+    const allTextareas = Array.from(document.querySelectorAll("textarea"));
+    const allInputElements = [...allContentEditables, ...allTextareas];
+
+    // Filter to only those matching our keywords
+    const matchingInputElements = allInputElements.filter(isPromptInput);
+
+    return matchingInputElements;
   };
 
   window.addEventListener("message", (e) => {
