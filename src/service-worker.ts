@@ -16,7 +16,7 @@ const updateContextMenu = async () => {
 };
 
 // Create context menu when extension is installed
-chrome.runtime.onInstalled.addListener(async () => {
+chrome.runtime.onInstalled.addListener(async (details) => {
   chrome.contextMenus.create({
     id: ContextMenu.AskMyAi,
     title: await contextMenuTitleWithSelectedAi(),
@@ -70,6 +70,19 @@ chrome.runtime.onInstalled.addListener(async () => {
     removeRuleIds: [1],
     addRules: [rule],
   });
+
+  // Open popup on first install
+  if (details.reason === "install") {
+    try {
+      await chrome.action.openPopup();
+    } catch (error) {
+      // Fallback: If popup fails (e.g., no active window), open in new tab
+      logger.error("Failed to open popup, opening in new tab instead:", error);
+      await chrome.tabs.create({
+        url: chrome.runtime.getURL("popup.html"),
+      });
+    }
+  }
 });
 
 // Update context menu on startup

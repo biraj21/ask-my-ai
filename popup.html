@@ -13,64 +13,68 @@
       }
 
       body {
-        width: 300px;
-        min-height: 240px;
-        background: #0f0f0f;
+        width: 320px;
+        min-height: 280px;
+        background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
         color: #ffffff;
         display: flex;
         flex-direction: column;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
-        padding: 24px 20px 20px;
-        gap: 20px;
+        padding: 28px 24px 24px;
+        gap: 24px;
       }
 
       .header {
         text-align: center;
-        margin-bottom: 4px;
+        margin-bottom: 8px;
       }
 
       h1 {
-        font-size: 22px;
+        font-size: 24px;
         font-weight: 600;
         letter-spacing: -0.5px;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
         color: #ffffff;
+        background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
       }
 
       .subtitle {
         font-size: 13px;
-        color: #888;
+        color: #999;
         font-weight: 400;
       }
 
       .button-container {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
+        align-items: center;
       }
 
       button {
-        width: 60%;
-        margin: 0 auto;
-        background: #7c3aed;
-        color: #ffffff;
-        border: none;
-        padding: 10px 18px;
-        border-radius: 8px;
+        padding: 8px 20px;
+        background: transparent;
+        color: #888;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
         cursor: pointer;
-        font-size: 14px;
-        font-weight: 500;
-        transition: all 0.15s ease;
+        font-size: 12px;
+        font-weight: 400;
+        transition: all 0.2s ease;
       }
 
       button:hover {
-        background: #8b5cf6;
-        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.05);
+        color: #aaa;
+        border-color: rgba(255, 255, 255, 0.15);
       }
 
       button:active {
-        background: #6d28d9;
-        transform: translateY(0);
+        background: rgba(255, 255, 255, 0.08);
+        transform: scale(0.98);
       }
 
       .links {
@@ -78,21 +82,22 @@
         flex-direction: column;
         gap: 12px;
         margin-top: auto;
-        padding-top: 16px;
-        border-top: 1px solid #2a2a2a;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
       }
 
       a {
         color: #9ca3af;
         text-decoration: none;
         font-size: 13px;
-        transition: color 0.2s ease;
+        transition: all 0.2s ease;
         text-align: center;
         font-weight: 400;
       }
 
       a:hover {
-        color: #ffffff;
+        color: #a78bfa;
+        transform: translateX(2px);
       }
 
       a:visited,
@@ -102,22 +107,72 @@
 
       a:visited:hover,
       a:active:hover {
-        color: #ffffff;
+        color: #a78bfa;
       }
 
       .footer {
         text-align: center;
-        font-size: 12px;
+        font-size: 11px;
         color: #666;
+        margin-top: 4px;
       }
 
       .footer a {
         color: #888;
-        font-size: 12px;
+        font-size: 11px;
+        transition: color 0.2s ease;
       }
 
       .footer a:hover {
-        color: #aaa;
+        color: #a78bfa;
+      }
+
+      .shortcut-info {
+        background: rgba(124, 58, 237, 0.08);
+        border: 1px solid rgba(124, 58, 237, 0.2);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        backdrop-filter: blur(10px);
+      }
+
+      .shortcut-description {
+        font-size: 12px;
+        color: #999;
+        margin-bottom: 10px;
+        line-height: 1.4;
+      }
+
+      .shortcut-key {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(30, 30, 30, 0.8);
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
+        font-size: 14px;
+        color: #a78bfa;
+        font-weight: 600;
+        border: 1px solid rgba(124, 58, 237, 0.3);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .shortcut-key kbd {
+        background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%);
+        padding: 6px 10px;
+        border-radius: 5px;
+        border: 1px solid #4a4a4a;
+        font-size: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        color: #e0e0e0;
+        min-width: 28px;
+        text-align: center;
+      }
+
+      .shortcut-key span {
+        color: #666;
+        font-weight: 400;
       }
     </style>
   </head>
@@ -127,8 +182,19 @@
       <p class="subtitle">Your AI assistant, always ready</p>
     </div>
 
+    <div class="shortcut-info">
+      <p class="shortcut-description">Open the sidebar from anywhere</p>
+      <div class="shortcut-key">
+        <kbd id="modifier-key">Ctrl</kbd>
+        <span>+</span>
+        <kbd>Shift</kbd>
+        <span>+</span>
+        <kbd>E</kbd>
+      </div>
+    </div>
+
     <div class="button-container">
-      <button id="open-sidebar">Open Sidebar</button>
+      <button id="open-sidebar">or click here to open it</button>
     </div>
 
     <div class="links">

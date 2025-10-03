@@ -39,7 +39,7 @@ export const copyToClipboard = async (text: string): Promise<boolean> => {
   }
 };
 
-const isItMac = () => {
+export const isItMac = () => {
   if (navigator.platform) {
     return navigator.platform.toUpperCase().includes("MAC");
   } else if (navigator.userAgent) {
