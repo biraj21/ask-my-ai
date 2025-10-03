@@ -1,7 +1,7 @@
 import { MessageAction } from "./constants";
 import { logger } from "./logger";
 import type { ExtIframeHandshakeRespMessage, SelectionInfoRespMessage } from "./types";
-import { injectText } from "./utils";
+import { injectText, timeout } from "./utils";
 
 let pendingSelection: SelectionInfoRespMessage | null = null;
 
@@ -196,7 +196,8 @@ async function init() {
     }
 
     if (attempts <= 10) {
-      setTimeout(fuck, 500);
+      await timeout(500);
+      fuck();
     } else {
       pendingSelection = null; // selection's consumed
     }
@@ -204,7 +205,7 @@ async function init() {
 
   fuck();
 
-  async function injectTextIntoPromptInputs(selection: SelectionInfoRespMessage, inputElementsArg?: Element[]) {
+  function injectTextIntoPromptInputs(selection: SelectionInfoRespMessage, inputElementsArg?: Element[]) {
     logger.debug("injecting selection", selection, "into input:", inputElementsArg);
     if (
       !selection.forced &&
