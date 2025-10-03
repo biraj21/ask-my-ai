@@ -34,16 +34,9 @@ window.onmessage = async (e) => {
   } else if (e.data.action === MessageAction.SELECTION_INFO_REQ) {
     const selectionInfo = await ExtStorage.session.getSelectionInfo();
     if (selectionInfo) {
-      const [currentAi, previousAi] = await Promise.all([
-        ExtStorage.local.getSelectedAI(),
-        ExtStorage.local.getPrevSelectedAI(),
-      ]);
-
       const msg: SelectionInfoRespMessage = {
         action: MessageAction.SELECTION_INFO_RESP,
         selectionInfo,
-        currentAi,
-        previousAi,
       };
       sendMessageToContent(msg);
     }
@@ -55,9 +48,6 @@ chrome.runtime.onMessage.addListener(async (message) => {
     const msg: SelectionInfoRespMessage = {
       action: MessageAction.SELECTION_INFO_RESP,
       selectionInfo: message.selectionInfo,
-      forced: true,
-      currentAi: null,
-      previousAi: null,
     };
 
     sendMessageToContent(msg);

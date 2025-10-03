@@ -1,11 +1,19 @@
-import { MessageAction } from "./constants";
+import { MessageAction, INJECTION_WINDOW_MS } from "./constants";
 import { logger } from "./logger";
 import type { ExtIframeHandshakeRespMessage, SelectionInfoRespMessage } from "./types";
-import { injectText, sleep } from "./utils";
+import { injectText } from "./utils";
 
-let pendingSelection: SelectionInfoRespMessage | null = null;
+let lastSelection: SelectionInfoRespMessage | null = null;
 
-async function waitForIframeHandshake(timeout: number = 500) {
+/**
+ * After first injection, we will only inject if the time since the first injection
+ * is less than the injection window.
+ * Why? Because we don't want to inject into inputs that are likely post-send inputs,
+ * i.e rendered after user hit the send button.
+ */
+let firstInjectionTimestamp: number | null = null;
+
+async function waitForIframeHandshake(timeoutMs: number = 500) {
   let listener: ((event: MessageEvent) => void) | null = null;
   let timeoutId: number | undefined = undefined;
   try {
@@ -38,12 +46,9 @@ async function waitForIframeHandshake(timeout: number = 500) {
           const msg: SelectionInfoRespMessage = {
             action: MessageAction.SELECTION_INFO_RESP,
             selectionInfo: e.data.selectionInfo,
-            forced: e.data.forced,
-            currentAi: e.data.currentAi,
-            previousAi: e.data.previousAi,
           };
 
-          pendingSelection = msg;
+          lastSelection = msg;
         }
       };
 
@@ -53,7 +58,7 @@ async function waitForIframeHandshake(timeout: number = 500) {
     const timeoutPromise = new Promise((_resolve, reject) => {
       timeoutId = setTimeout(() => {
         reject(new Error("Handshake timeout"));
-      }, timeout);
+      }, timeoutMs);
     });
 
     await Promise.race([iframeHandshakePromise, timeoutPromise]);
@@ -79,9 +84,9 @@ async function init() {
   await waitForIframeHandshake();
   logger.debug("iframe ready", window.location.href);
 
-  let allPromptInputs = new Set<Element>();
+  let allPromptInputs = new Set<HTMLElement>();
 
-  const getPromptElement = () => {
+  const getPromptElements = () => {
     // Keywords to identify AI prompt inputs
     const chatKeywords = [
       "message",
@@ -112,7 +117,11 @@ async function init() {
     const keywords = [...chatKeywords, ...aiPlatformNames];
 
     // Check if an element matches our keyword criteria
-    const isPromptInput = (element: Element): boolean => {
+    const isPromptInput = (element: Element): element is HTMLElement => {
+      if (!(element instanceof HTMLElement)) {
+        return true;
+      }
+
       const attributesToCheck = [
         element.id,
         element.className,
@@ -150,19 +159,17 @@ async function init() {
       const msg: SelectionInfoRespMessage = {
         action: MessageAction.SELECTION_INFO_RESP,
         selectionInfo: e.data.selectionInfo,
-        forced: e.data.forced,
-        currentAi: e.data.currentAi,
-        previousAi: e.data.previousAi,
       };
 
       logger.debug("Received response:", e);
 
-      const newInputElements = getPromptElement();
+      lastSelection = msg;
+
+      const newInputElements = getPromptElements();
       newInputElements.forEach((el) => allPromptInputs.add(el));
 
       if (allPromptInputs.size === 0) {
         logger.debug("No prompt input elements found yet.");
-        pendingSelection = msg;
         return;
       }
 
@@ -170,22 +177,36 @@ async function init() {
     }
   });
 
-  let attempts = 0;
-
-  // TODO: fix this shit
-  async function fuck() {
-    ++attempts;
-
+  // Function to check for new prompt inputs and handle them
+  const checkForPromptInputs = () => {
     const sizeBefore = allPromptInputs.size;
-    const newInputElements = getPromptElement();
+    const newInputElements = getPromptElements();
     for (const elem of newInputElements) {
       allPromptInputs.add(elem);
     }
 
     if (allPromptInputs.size > sizeBefore) {
-      if (pendingSelection) {
-        injectTextIntoPromptInputs(pendingSelection, newInputElements);
+      // New inputs found
+      if (lastSelection) {
+        // Check if we're within the injection window
+        if (firstInjectionTimestamp === null) {
+          // First injection - always inject
+          injectTextIntoPromptInputs(lastSelection, newInputElements);
+        } else {
+          // Subsequent injection - only inject if within time window
+          const timeSinceFirstInjection = Date.now() - firstInjectionTimestamp;
+          if (timeSinceFirstInjection <= INJECTION_WINDOW_MS) {
+            logger.debug(`Injecting into new input (${timeSinceFirstInjection}ms since first injection)`);
+            injectTextIntoPromptInputs(lastSelection, newInputElements);
+          } else {
+            logger.debug(
+              `Skipping injection - outside ${INJECTION_WINDOW_MS}ms window (${timeSinceFirstInjection}ms elapsed)`
+            );
+            lastSelection = null;
+          }
+        }
       } else {
+        // No pending selection, request one
         window.parent.postMessage(
           {
             action: MessageAction.SELECTION_INFO_REQ,
@@ -194,37 +215,50 @@ async function init() {
         );
       }
     }
+  };
 
-    if (attempts <= 10) {
-      await sleep(500);
-      fuck();
-    } else {
-      pendingSelection = null; // selection's consumed
+  // Initial check for existing prompt inputs
+  checkForPromptInputs();
+
+  // Set up MutationObserver to watch for DOM changes
+  const observer = new MutationObserver((mutations) => {
+    // Check if any mutations added new elements
+    for (const mutation of mutations) {
+      if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+        checkForPromptInputs();
+        break; // Only need to check once per batch of mutations
+      }
     }
-  }
+  });
 
-  fuck();
+  // Start observing the document for DOM changes
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
 
-  function injectTextIntoPromptInputs(selection: SelectionInfoRespMessage, inputElementsArg?: Element[]) {
-    logger.debug("injecting selection", selection, "into input:", inputElementsArg);
-    if (
-      !selection.forced &&
-      selection.previousAi === selection.currentAi &&
-      Date.now() - selection.selectionInfo.timestamp > 5000
-    ) {
-      logger.debug("selected text older than 5 seconds.. skipping");
-      return;
-    }
+  // Cleanup observer when the page unloads
+  window.addEventListener("beforeunload", () => {
+    observer.disconnect();
+  });
 
+  function injectTextIntoPromptInputs(selection: SelectionInfoRespMessage, inputElementsArg?: HTMLElement[]) {
     const elements = new Set(inputElementsArg || allPromptInputs || []);
-
     const text = selection.selectionInfo.text;
 
-    for (const el of elements) {
-      logger.debug("injecting text", text, "into input:", el);
+    // Record timestamp of first injection
+    if (firstInjectionTimestamp === null) {
+      firstInjectionTimestamp = Date.now();
+      logger.debug("First injection at", firstInjectionTimestamp);
+    }
 
-      // then inject the text
-      injectText(text, el);
+    for (const el of elements) {
+      if (el.isConnected) {
+        logger.debug("injecting text", text, "into input:", el);
+        injectText(text, el);
+      } else {
+        logger.debug("element is not connected, skipping", el);
+      }
     }
   }
 }

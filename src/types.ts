@@ -56,7 +56,4 @@ export interface SelectionInfoReqMessage extends Message {
 export interface SelectionInfoRespMessage extends Message {
   action: typeof MessageAction.SELECTION_INFO_RESP;
   selectionInfo: SelectionInfo;
-  forced?: boolean;
-  currentAi: AiType | null;
-  previousAi: AiType | null;
 }

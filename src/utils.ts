@@ -56,12 +56,12 @@ export const isItMac = () => {
  * @param text - The text to inject
  * @param element
  */
-export const injectText = (text: string, element: Element) => {
+export const injectText = (text: string, element: HTMLElement) => {
   const setValue = () => {
     if (element instanceof HTMLTextAreaElement || element instanceof HTMLInputElement) {
       element.value = text;
     } else {
-      (element as any).innerText = text;
+      element.innerText = text;
     }
   };
 
@@ -69,7 +69,7 @@ export const injectText = (text: string, element: Element) => {
     if (element instanceof HTMLTextAreaElement || element instanceof HTMLInputElement) {
       return element.value;
     } else {
-      return (element as any).innerText;
+      return element.innerText;
     }
   };
 
@@ -77,9 +77,7 @@ export const injectText = (text: string, element: Element) => {
   setValue();
 
   // focus the element
-  if ("focus" in element) {
-    (element as any).focus();
-  }
+  element.focus();
 
   // Trigger multiple events to ensure the site recognizes the change
   const inputEvent = new Event("input", { bubbles: true });

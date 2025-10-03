@@ -1,4 +1,4 @@
-import { ContextMenu, MessageAction, type ContextMenuValue } from "./constants";
+import { ContextMenu, MessageAction, MESSAGE_RETRY_CONFIG, type ContextMenuValue } from "./constants";
 import { logger } from "./logger";
 import type { SelectionInfo, SelectionInfoSavedMessage } from "./types";
 import { ExtStorage } from "./storage";
@@ -169,18 +169,18 @@ chrome.contextMenus.onClicked.addListener(async function (info, tab) {
 async function sendTextToSidePanel(text: string, tab: chrome.tabs.Tab, formatType: ContextMenuValue) {
   const selectionInfo: SelectionInfo = {
     text: formatSelectionText(text, tab, formatType),
-    tabUrl: tab.url || "wtf",
-    tabTitle: tab.title || "wtf",
+    tabUrl: tab.url || "unknown",
+    tabTitle: tab.title || "Untitled",
     timestamp: Date.now(),
   };
 
   // save selection info in storage
   await ExtStorage.session.setSelectionInfo(selectionInfo);
 
-  // send selection info to side panel
+  // send selection info to side panel with retry logic
   let sent = false;
   let i = 0;
-  for (; i < 5; ++i) {
+  for (; i < MESSAGE_RETRY_CONFIG.MAX_ATTEMPTS; ++i) {
     try {
       logger.debug(`Sending selection info to side panel (attempt ${i + 1})`);
       const msg: SelectionInfoSavedMessage = {
@@ -192,7 +192,7 @@ async function sendTextToSidePanel(text: string, tab: chrome.tabs.Tab, formatTyp
       break;
     } catch (error) {
       logger.error("Error sending selection info to side panel:", error);
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, MESSAGE_RETRY_CONFIG.RETRY_DELAY_MS));
     }
   }
 
