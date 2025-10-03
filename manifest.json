@@ -3,7 +3,7 @@
   "name": "Ask My AI: Free ChatGPT, Claude, Perplexity Sidebar",
   "version": "0.0.3",
   "description": "Your AI assistant, always one click away. Highlight text on any page to explain with ChatGPT, Claude, DeepSeek, Perplexity, & more.",
-  "permissions": ["contextMenus", "storage", "sidePanel", "declarativeNetRequestWithHostAccess"],
+  "permissions": ["contextMenus", "storage", "sidePanel", "declarativeNetRequestWithHostAccess", "scripting", "activeTab"],
   "host_permissions": [
     "https://claude.ai/*",
     "https://*.claude.ai/*",
@@ -47,6 +47,15 @@
   "action": {
     "default_popup": "popup.html",
     "default_title": "Ask My AI Settings"
+  },
+  "commands": {
+    "open-side-panel": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+E",
+        "mac": "Command+Shift+E"
+      },
+      "description": "Open AI assistant side panel"
+    }
   },
   "icons": {
     "16": "icons/icon16.png",

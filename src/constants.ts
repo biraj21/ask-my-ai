@@ -55,7 +55,9 @@ export const ContextMenu = {
   Explain: "explain",
   Summarize: "summarize",
   Simplify: "simplify",
-};
+} as const;
+
+export type ContextMenuValue = (typeof ContextMenu)[keyof typeof ContextMenu];
 
 export const MessageAction = {
   /**

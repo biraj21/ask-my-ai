@@ -1,4 +1,4 @@
-import { ContextMenu, MessageAction } from "./constants";
+import { ContextMenu, MessageAction, type ContextMenuValue } from "./constants";
 import { logger } from "./logger";
 import type { SelectionInfo, SelectionInfoSavedMessage } from "./types";
 import { ExtStorage } from "./storage";
@@ -82,16 +82,55 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
   }
 });
 
+// Helper function to get selected text from active tab
+async function getSelectedText(tabId: number): Promise<string | null> {
+  try {
+    const results = await chrome.scripting.executeScript({
+      target: { tabId },
+      func: () => window.getSelection()?.toString() || null,
+    });
+    return results[0]?.result || null;
+  } catch (error) {
+    logger.error("Error getting selected text:", error);
+    return null;
+  }
+}
+
+// Handle keyboard shortcut commands
+chrome.commands.onCommand.addListener(async (command, tab) => {
+  if (command === "open-side-panel") {
+    try {
+      if (!tab || !tab.id) {
+        throw new Error("tab is undefined");
+      }
+
+      // Open side panel first
+      if (tab.windowId > 0) {
+        await chrome.sidePanel.open({ windowId: tab.windowId });
+      }
+
+      // Try to get selected text
+      const selectedText = await getSelectedText(tab.id);
+
+      if (selectedText) {
+        await sendTextToSidePanel(selectedText, tab, ContextMenu.AskMyAi);
+      }
+    } catch (error) {
+      logger.error("Error opening side panel via keyboard shortcut:", error);
+    }
+  }
+});
+
 // Handle context menu clicks
 chrome.contextMenus.onClicked.addListener(async function (info, tab) {
-  const validMenuIds = [ContextMenu.AskMyAi, ContextMenu.Explain, ContextMenu.Summarize, ContextMenu.Simplify];
+  const validMenuIds = Object.values(ContextMenu);
 
   if (typeof info.menuItemId !== "string") {
     logger.error("menuItemId is not a string");
     return;
   }
 
-  if (validMenuIds.includes(info.menuItemId)) {
+  if (validMenuIds.includes(info.menuItemId as ContextMenuValue)) {
     try {
       if (!tab) {
         throw new Error("tab is undefined");
@@ -107,45 +146,49 @@ chrome.contextMenus.onClicked.addListener(async function (info, tab) {
         return;
       }
 
-      const selectionInfo: SelectionInfo = {
-        text: formatSelectionText(info.selectionText, tab, info.menuItemId),
-        tabUrl: tab.url || "wtf",
-        tabTitle: tab.title || "wtf",
-        timestamp: Date.now(),
-      };
-
-      // save selection info in storage
-      await ExtStorage.session.setSelectionInfo(selectionInfo);
-
-      // send selection info to side panel
-      let sent = false;
-      let i = 0;
-      for (; i < 5; ++i) {
-        try {
-          logger.debug(`Sending selection info to side panel (attempt ${i + 1})`);
-          const msg: SelectionInfoSavedMessage = {
-            action: MessageAction.SELECTION_INFO_SAVED,
-            selectionInfo,
-          };
-          await chrome.runtime.sendMessage(msg);
-          sent = true;
-          break;
-        } catch (error) {
-          logger.error("Error sending selection info to side panel:", error);
-          await new Promise((resolve) => setTimeout(resolve, 50));
-        }
-      }
-
-      if (!sent) {
-        logger.error(`Failed to send selection info to side panel after ${i} attempts`);
-      }
+      await sendTextToSidePanel(info.selectionText, tab, info.menuItemId as ContextMenuValue);
     } catch (error) {
       logger.error("Error handling Ask my AI:", error);
     }
   }
 });
 
-function formatSelectionText(text: string, tab: chrome.tabs.Tab, menuItemId: string) {
+async function sendTextToSidePanel(text: string, tab: chrome.tabs.Tab, formatType: ContextMenuValue) {
+  const selectionInfo: SelectionInfo = {
+    text: formatSelectionText(text, tab, formatType),
+    tabUrl: tab.url || "wtf",
+    tabTitle: tab.title || "wtf",
+    timestamp: Date.now(),
+  };
+
+  // save selection info in storage
+  await ExtStorage.session.setSelectionInfo(selectionInfo);
+
+  // send selection info to side panel
+  let sent = false;
+  let i = 0;
+  for (; i < 5; ++i) {
+    try {
+      logger.debug(`Sending selection info to side panel (attempt ${i + 1})`);
+      const msg: SelectionInfoSavedMessage = {
+        action: MessageAction.SELECTION_INFO_SAVED,
+        selectionInfo,
+      };
+      await chrome.runtime.sendMessage(msg);
+      sent = true;
+      break;
+    } catch (error) {
+      logger.error("Error sending selection info to side panel:", error);
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+  }
+
+  if (!sent) {
+    logger.error(`Failed to send selection info to side panel after ${i} attempts`);
+  }
+}
+
+function formatSelectionText(text: string, tab: chrome.tabs.Tab, menuItemId: ContextMenuValue) {
   const baseContext = `Yo I'm reading this page titled '${tab.title}' at ${tab.url}.`;
 
   let formatted = "";
