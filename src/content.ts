@@ -1,6 +1,7 @@
 import { MessageAction } from "./constants";
 import { logger } from "./logger";
 import type { ExtIframeHandshakeRespMessage, SelectionInfoRespMessage } from "./types";
+import { injectText, timeout } from "./utils";
 
 let pendingSelection: SelectionInfoRespMessage | null = null;
 
@@ -117,6 +118,7 @@ async function init() {
         element.className,
         element.getAttribute("aria-label"),
         element.getAttribute("placeholder"),
+        element.getAttribute("aria-placeholder"),
         element.getAttribute("data-placeholder"),
         element.getAttribute("name"),
       ];
@@ -164,7 +166,7 @@ async function init() {
         return;
       }
 
-      injectText(msg);
+      injectTextIntoPromptInputs(msg);
     }
   });
 
@@ -182,7 +184,7 @@ async function init() {
 
     if (allPromptInputs.size > sizeBefore) {
       if (pendingSelection) {
-        injectText(pendingSelection, newInputElements);
+        injectTextIntoPromptInputs(pendingSelection, newInputElements);
       } else {
         window.parent.postMessage(
           {
@@ -194,7 +196,8 @@ async function init() {
     }
 
     if (attempts <= 10) {
-      setTimeout(fuck, 500);
+      await timeout(500);
+      fuck();
     } else {
       pendingSelection = null; // selection's consumed
     }
@@ -202,7 +205,7 @@ async function init() {
 
   fuck();
 
-  function injectText(selection: SelectionInfoRespMessage, inputElementsArg?: Element[]) {
+  function injectTextIntoPromptInputs(selection: SelectionInfoRespMessage, inputElementsArg?: Element[]) {
     logger.debug("injecting selection", selection, "into input:", inputElementsArg);
     if (
       !selection.forced &&
@@ -217,30 +220,11 @@ async function init() {
 
     const text = selection.selectionInfo.text;
 
-    for (const inputElement of elements) {
-      logger.debug("injecting text", text, "into input:", inputElement);
+    for (const el of elements) {
+      logger.debug("injecting text", text, "into input:", el);
 
-      // (inputElement as any).focus();
-
-      if (inputElement instanceof HTMLTextAreaElement || inputElement instanceof HTMLInputElement) {
-        inputElement.value = text;
-      } else {
-        (inputElement as any).innerText = text;
-      }
-
-      // Trigger multiple events to ensure the site recognizes the change
-      const inputEvent = new Event("input", { bubbles: true });
-      inputElement.dispatchEvent(inputEvent);
-
-      const changeEvent = new Event("change", { bubbles: true });
-      inputElement.dispatchEvent(changeEvent);
-
-      // Also try keyboard events
-      const keydownEvent = new KeyboardEvent("keydown", { bubbles: true });
-      inputElement.dispatchEvent(keydownEvent);
-
-      const keyupEvent = new KeyboardEvent("keyup", { bubbles: true });
-      inputElement.dispatchEvent(keyupEvent);
+      // then inject the text
+      injectText(text, el);
     }
   }
 }
