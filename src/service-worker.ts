@@ -17,6 +17,8 @@ const updateContextMenu = async () => {
 
 // Create context menu when extension is installed
 chrome.runtime.onInstalled.addListener(async (details) => {
+  await chrome.contextMenus.removeAll();
+
   chrome.contextMenus.create({
     id: ContextMenu.AskMyAi,
     title: await contextMenuTitleWithSelectedAi(),
