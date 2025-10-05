@@ -30,16 +30,24 @@ export const ExtStorage = {
   },
 
   session: {
-    getSelectionInfo: async (): Promise<SelectionInfo | null> => {
+    getSelectionInfo: async function (ttl = 3 * 60 * 1_000): Promise<SelectionInfo | null> {
       const { selectionInfo } = await chrome.storage.session.get("selectionInfo");
       if (!selectionInfo) {
         return null;
       } else {
+        if (Date.now() - (selectionInfo as SelectionInfo).timestamp > ttl) {
+          this.removeSelectionInfo();
+          return null;
+        }
+
         return selectionInfo;
       }
     },
     setSelectionInfo: (selectionInfo: SelectionInfo) => {
       return chrome.storage.session.set({ selectionInfo });
+    },
+    removeSelectionInfo: () => {
+      return chrome.storage.session.remove("selectionInfo");
     },
   },
 };
