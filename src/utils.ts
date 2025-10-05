@@ -61,7 +61,7 @@ export const injectText = (text: string, element: HTMLElement) => {
     if (element instanceof HTMLTextAreaElement || element instanceof HTMLInputElement) {
       element.value = text;
     } else {
-      element.innerText = text;
+      element.innerHTML = text.replaceAll("\n", "<br/>");
     }
   };
 

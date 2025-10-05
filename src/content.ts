@@ -195,8 +195,10 @@ async function init() {
       injectTextIntoPromptInputs(msg);
     } else if (e.data.action === MessageAction.OPEN_CURRENT_URL_IN_TAB) {
       // Open current URL in a new tab
-      // logger.debug("Opening current URL in new tab:", window.location.href);
       window.open(window.location.href, "_blank");
+    } else if (e.data.action === MessageAction.RELOAD_IFRAME) {
+      // Reload the iframe
+      window.location.reload();
     }
   });
 

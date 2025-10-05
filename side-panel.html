@@ -25,9 +25,21 @@
         display: flex;
         flex-direction: column;
         padding: 10px 8px;
-        gap: 12px;
         flex-shrink: 0;
         overflow-y: auto;
+      }
+      .ai-icons-container {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .utility-buttons-container {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: auto;
+        padding-top: 12px;
+        border-top: 1px solid #888;
       }
       .ai-icon {
         width: 38px;
@@ -88,7 +100,12 @@
     </div>
 
     <div class="sidebar" id="ai-sidebar">
-      <!-- AI icons will be populated by JavaScript -->
+      <div class="ai-icons-container" id="ai-icons-container">
+        <!-- AI icons will be populated by JavaScript -->
+      </div>
+      <div class="utility-buttons-container" id="utility-buttons-container">
+        <!-- Utility buttons will be populated by JavaScript -->
+      </div>
     </div>
 
     <script type="module" src="/src/side-panel.ts"></script>

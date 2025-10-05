@@ -90,6 +90,11 @@ export const MessageAction = {
    * Side panel sends this to iframe content script to request opening current URL in new tab.
    */
   OPEN_CURRENT_URL_IN_TAB: "OPEN_CURRENT_URL_IN_TAB",
+
+  /**
+   * Side panel sends this to iframe content script to reload the page.
+   */
+  RELOAD_IFRAME: "RELOAD_IFRAME",
 };
 
 export const EXT_NAME = "Ask my AI";

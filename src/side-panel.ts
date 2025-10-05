@@ -4,6 +4,7 @@ import type {
   AiType,
   ExtIframeHandshakeRespMessage,
   OpenCurrentUrlInTabMessage,
+  ReloadIframeMessage,
   SelectionInfoRespMessage,
   SidePanelToIframeMessage,
 } from "./types";
@@ -64,10 +65,12 @@ chrome.runtime.onMessage.addListener(async (message) => {
 
 // Load saved preferences
 document.addEventListener("DOMContentLoaded", async () => {
-  // Create icon sidebar
-  const sidebar = document.getElementById("ai-sidebar");
-  if (!sidebar) {
-    logger.error("AI sidebar element not found!");
+  // Get containers
+  const aiIconsContainer = document.getElementById("ai-icons-container");
+  const utilityButtonsContainer = document.getElementById("utility-buttons-container");
+
+  if (!aiIconsContainer || !utilityButtonsContainer) {
+    logger.error("Sidebar container elements not found!");
     return;
   }
 
@@ -96,7 +99,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     iconContainer.addEventListener("click", async () => {
       try {
         // Remove active class from all icons
-        sidebar.querySelectorAll(".ai-icon").forEach((icon) => icon.classList.remove("active"));
+        aiIconsContainer.querySelectorAll(".ai-icon").forEach((icon) => icon.classList.remove("active"));
         // Add active class to clicked icon
         iconContainer.classList.add("active");
 
@@ -106,8 +109,23 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
 
-    sidebar.appendChild(iconContainer);
+    aiIconsContainer.appendChild(iconContainer);
   }
+
+  // Create "Refresh" button
+  const refreshButton = document.createElement("div");
+  refreshButton.className = "open-tab-btn";
+  refreshButton.title = "Refresh current AI page";
+  refreshButton.innerHTML = "↻";
+
+  refreshButton.addEventListener("click", () => {
+    const msg: ReloadIframeMessage = {
+      action: MessageAction.RELOAD_IFRAME,
+    };
+    sendMessageToContent(msg);
+  });
+
+  utilityButtonsContainer.appendChild(refreshButton);
 
   // Create "Open in New Tab" button at the bottom
   const openTabButton = document.createElement("div");
@@ -122,14 +140,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     sendMessageToContent(msg);
   });
 
-  sidebar.appendChild(openTabButton);
+  utilityButtonsContainer.appendChild(openTabButton);
 
   // Set initial active AI
   let selectedAI = await ExtStorage.local.getSelectedAI();
   selectedAI = selectedAI && selectedAI in URLs ? selectedAI : (Object.keys(URLs)[0] as AiType);
 
   // Mark the selected AI as active
-  const activeIcon = sidebar.querySelector(`[data-ai-type="${selectedAI}"]`);
+  const activeIcon = aiIconsContainer.querySelector(`[data-ai-type="${selectedAI}"]`);
   if (activeIcon) {
     activeIcon.classList.add("active");
   }

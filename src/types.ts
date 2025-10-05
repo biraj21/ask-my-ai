@@ -62,7 +62,12 @@ export interface OpenCurrentUrlInTabMessage extends Message {
   action: typeof MessageAction.OPEN_CURRENT_URL_IN_TAB;
 }
 
+export interface ReloadIframeMessage extends Message {
+  action: typeof MessageAction.RELOAD_IFRAME;
+}
+
 export type SidePanelToIframeMessage =
   | ExtIframeHandshakeRespMessage
   | SelectionInfoRespMessage
-  | OpenCurrentUrlInTabMessage;
+  | OpenCurrentUrlInTabMessage
+  | ReloadIframeMessage;
