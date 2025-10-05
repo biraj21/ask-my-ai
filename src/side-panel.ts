@@ -1,12 +1,18 @@
 import { URLs, MessageAction } from "./constants";
 import { logger } from "./logger";
-import type { AiType, ExtIframeHandshakeRespMessage, SelectionInfoRespMessage } from "./types";
+import type {
+  AiType,
+  ExtIframeHandshakeRespMessage,
+  OpenCurrentUrlInTabMessage,
+  SelectionInfoRespMessage,
+  SidePanelToIframeMessage,
+} from "./types";
 import { ExtStorage } from "./storage";
 import { copyToClipboard } from "./utils";
 
 let iframe: HTMLIFrameElement | null = null;
 
-const sendMessageToContent = (msg: ExtIframeHandshakeRespMessage | SelectionInfoRespMessage) => {
+const sendMessageToContent = (msg: SidePanelToIframeMessage) => {
   if (!iframe) {
     logger.warn("sendMessageToContent(): iframe is undefined");
     return;
@@ -102,6 +108,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     sidebar.appendChild(iconContainer);
   }
+
+  // Create "Open in New Tab" button at the bottom
+  const openTabButton = document.createElement("div");
+  openTabButton.className = "open-tab-btn";
+  openTabButton.title = "Open current AI in new tab";
+  openTabButton.innerHTML = "↗";
+
+  openTabButton.addEventListener("click", () => {
+    const msg: OpenCurrentUrlInTabMessage = {
+      action: MessageAction.OPEN_CURRENT_URL_IN_TAB,
+    };
+    sendMessageToContent(msg);
+  });
+
+  sidebar.appendChild(openTabButton);
 
   // Set initial active AI
   let selectedAI = await ExtStorage.local.getSelectedAI();

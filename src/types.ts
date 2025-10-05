@@ -57,3 +57,12 @@ export interface SelectionInfoRespMessage extends Message {
   action: typeof MessageAction.SELECTION_INFO_RESP;
   selectionInfo: SelectionInfo;
 }
+
+export interface OpenCurrentUrlInTabMessage extends Message {
+  action: typeof MessageAction.OPEN_CURRENT_URL_IN_TAB;
+}
+
+export type SidePanelToIframeMessage =
+  | ExtIframeHandshakeRespMessage
+  | SelectionInfoRespMessage
+  | OpenCurrentUrlInTabMessage;

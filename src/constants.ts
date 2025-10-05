@@ -85,6 +85,11 @@ export const MessageAction = {
    * Side panel must send this to the iframe content script to respond to selection info request.
    */
   SELECTION_INFO_RESP: "SELECTION_INFO_RESP",
+
+  /**
+   * Side panel sends this to iframe content script to request opening current URL in new tab.
+   */
+  OPEN_CURRENT_URL_IN_TAB: "OPEN_CURRENT_URL_IN_TAB",
 };
 
 export const EXT_NAME = "Ask my AI";

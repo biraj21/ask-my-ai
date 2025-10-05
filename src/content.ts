@@ -84,6 +84,29 @@ async function init() {
   await waitForIframeHandshake();
   logger.debug("iframe ready", window.location.href);
 
+  // Intercept all link clicks and open in new tab instead of navigating in iframe
+  document.addEventListener(
+    "click",
+    (e) => {
+      const target = e.target as HTMLElement;
+      const link = target.closest("a");
+
+      if (link && link.href) {
+        // Don't intercept same-page anchors (e.g., #section)
+        const linkUrl = new URL(link.href);
+        const currentUrl = new URL(window.location.href);
+
+        if (linkUrl.origin !== currentUrl.origin || linkUrl.pathname !== currentUrl.pathname) {
+          e.preventDefault();
+          e.stopPropagation();
+          // logger.debug("Intercepting link click, opening in new tab:", link.href);
+          window.open(link.href, "_blank");
+        }
+      }
+    },
+    true
+  );
+
   let allPromptInputs = new Set<HTMLElement>();
 
   const getPromptElements = () => {
@@ -174,6 +197,10 @@ async function init() {
       }
 
       injectTextIntoPromptInputs(msg);
+    } else if (e.data.action === MessageAction.OPEN_CURRENT_URL_IN_TAB) {
+      // Open current URL in a new tab
+      // logger.debug("Opening current URL in new tab:", window.location.href);
+      window.open(window.location.href, "_blank");
     }
   });
 
