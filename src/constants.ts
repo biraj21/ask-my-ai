@@ -100,6 +100,6 @@ export const MESSAGE_RETRY_CONFIG = {
   RETRY_DELAY_MS: 50,
 } as const;
 
-// Time window (ms) to inject into new inputs after first injection
+// Time window (ms) to auto-inject into new inputs after first injection
 // After this window, new inputs won't get injected (likely post-send inputs)
-export const INJECTION_WINDOW_MS = 1500;
+export const INJECTION_WINDOW_MS = 500;

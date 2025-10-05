@@ -6,7 +6,7 @@ import { injectText } from "./utils";
 let lastSelection: SelectionInfoRespMessage | null = null;
 
 /**
- * After first injection, we will only inject if the time since the first injection
+ * After first injection, we will auto-inject ONLY IF the time since the first injection
  * is less than the injection window.
  * Why? Because we don't want to inject into inputs that are likely post-send inputs,
  * i.e rendered after user hit the send button.
@@ -107,7 +107,7 @@ async function init() {
     true
   );
 
-  let allPromptInputs = new Set<HTMLElement>();
+  let allPromptElements = new Set<HTMLElement>();
 
   const getPromptElements = () => {
     // Keywords to identify AI prompt inputs
@@ -173,7 +173,6 @@ async function init() {
 
     // Filter to only those matching our keywords
     const matchingInputElements = allInputElements.filter(isPromptInput);
-
     return matchingInputElements;
   };
 
@@ -188,10 +187,7 @@ async function init() {
 
       lastSelection = msg;
 
-      const newInputElements = getPromptElements();
-      newInputElements.forEach((el) => allPromptInputs.add(el));
-
-      if (allPromptInputs.size === 0) {
+      if (allPromptElements.size === 0) {
         logger.debug("No prompt input elements found yet.");
         return;
       }
@@ -206,32 +202,27 @@ async function init() {
 
   // Function to check for new prompt inputs and handle them
   const checkForPromptInputs = () => {
-    const sizeBefore = allPromptInputs.size;
-    const newInputElements = getPromptElements();
-    for (const elem of newInputElements) {
-      allPromptInputs.add(elem);
+    const sizeBefore = allPromptElements.size;
+    const promptElements = getPromptElements();
+
+    allPromptElements.clear();
+    for (const elem of promptElements) {
+      allPromptElements.add(elem);
     }
 
-    if (allPromptInputs.size > sizeBefore) {
+    if (allPromptElements.size != sizeBefore) {
+      // Only inject if within time window
+      if (firstInjectionTimestamp) {
+        const timeSinceFirstInjection = Date.now() - firstInjectionTimestamp;
+        if (timeSinceFirstInjection >= INJECTION_WINDOW_MS) {
+          lastSelection = null;
+          return;
+        }
+      }
+
       // New inputs found
       if (lastSelection) {
-        // Check if we're within the injection window
-        if (firstInjectionTimestamp === null) {
-          // First injection - always inject
-          injectTextIntoPromptInputs(lastSelection, newInputElements);
-        } else {
-          // Subsequent injection - only inject if within time window
-          const timeSinceFirstInjection = Date.now() - firstInjectionTimestamp;
-          if (timeSinceFirstInjection <= INJECTION_WINDOW_MS) {
-            logger.debug(`Injecting into new input (${timeSinceFirstInjection}ms since first injection)`);
-            injectTextIntoPromptInputs(lastSelection, newInputElements);
-          } else {
-            logger.debug(
-              `Skipping injection - outside ${INJECTION_WINDOW_MS}ms window (${timeSinceFirstInjection}ms elapsed)`
-            );
-            lastSelection = null;
-          }
-        }
+        injectTextIntoPromptInputs(lastSelection);
       } else {
         // No pending selection, request one
         window.parent.postMessage(
@@ -269,8 +260,7 @@ async function init() {
     observer.disconnect();
   });
 
-  function injectTextIntoPromptInputs(selection: SelectionInfoRespMessage, inputElementsArg?: HTMLElement[]) {
-    const elements = new Set(inputElementsArg || allPromptInputs || []);
+  function injectTextIntoPromptInputs(selection: SelectionInfoRespMessage) {
     const text = selection.selectionInfo.text;
 
     // Record timestamp of first injection
@@ -279,7 +269,7 @@ async function init() {
       logger.debug("First injection at", firstInjectionTimestamp);
     }
 
-    for (const el of elements) {
+    for (const el of allPromptElements) {
       if (el.isConnected) {
         logger.debug("injecting text", text, "into input:", el);
         injectText(text, el);
