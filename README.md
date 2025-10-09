@@ -58,6 +58,7 @@ Perfect for quickly understanding complex concepts, code snippets, technical ter
 - DeepSeek Chat (chat.deepseek.com)
 - Mistral Le Chat (chat.mistral.ai)
 - Google (since it now has AI mode)
+- xAI's Grok
 
 ## Settings
 

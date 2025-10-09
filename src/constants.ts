@@ -18,35 +18,40 @@ export const URLs: Record<AiType, AiConfig> = {
     url: "https://gemini.google.com/",
     icon: `${ICON_BASE_PATH}/gemini-color.svg`,
   },
-  aistudio: {
-    label: "Google AI Studio",
-    url: "https://aistudio.google.com/",
-    icon: `${ICON_BASE_PATH}/aistudio.svg`,
+  perplexity: {
+    label: "Perplexity",
+    url: "https://perplexity.ai/",
+    icon: `${ICON_BASE_PATH}/perplexity-color.svg`,
   },
-  scira: {
-    label: "Scira",
-    url: "https://scira.ai/",
-    icon: `${ICON_BASE_PATH}/scira.svg`,
+  grok: {
+    label: "Grok",
+    url: "https://grok.com/",
+    icon: `${ICON_BASE_PATH}/grok.svg`,
   },
   deepseek: {
     label: "Deepseek",
     url: "https://chat.deepseek.com/",
     icon: `${ICON_BASE_PATH}/deepseek-color.svg`,
   },
+  aistudio: {
+    label: "Google AI Studio",
+    url: "https://aistudio.google.com/",
+    icon: `${ICON_BASE_PATH}/aistudio.svg`,
+  },
   google: {
-    label: "Google ",
+    label: "Google",
     url: "https://google.com/",
     icon: `${ICON_BASE_PATH}/google-color.svg`,
-  },
-  perplexity: {
-    label: "Perplexity",
-    url: "https://perplexity.ai/",
-    icon: `${ICON_BASE_PATH}/perplexity-color.svg`,
   },
   mistral: {
     label: "Mistral Le Chat",
     url: "https://chat.mistral.ai/chat",
     icon: `${ICON_BASE_PATH}/mistral-color.svg`,
+  },
+  scira: {
+    label: "Scira",
+    url: "https://scira.ai/",
+    icon: `${ICON_BASE_PATH}/scira.svg`,
   },
 };
 
