@@ -100,6 +100,11 @@ export const MessageAction = {
    * Side panel sends this to iframe content script to reload the page.
    */
   RELOAD_IFRAME: "RELOAD_IFRAME",
+
+  /**
+   * Service worker sends this to side panel to request closing itself.
+   */
+  CLOSE_SIDE_PANEL: "CLOSE_SIDE_PANEL",
 };
 
 export const EXT_NAME = "Ask my AI";

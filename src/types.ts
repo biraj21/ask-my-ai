@@ -9,7 +9,8 @@ export type AiType =
   | "deepseek"
   | "mistral"
   | "perplexity"
-  | "aistudio";
+  | "aistudio"
+  | "grok";
 export type AiConfig = {
   label: string;
   url: string;

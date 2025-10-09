@@ -60,11 +60,27 @@ chrome.runtime.onMessage.addListener(async (message) => {
     sendMessageToContent(msg);
 
     await copyToClipboard(msg.selectionInfo.text);
+  } else if (message.action === MessageAction.CLOSE_SIDE_PANEL) {
+    // Update state before closing
+    try {
+      await ExtStorage.session.setPanelOpenState(false);
+    } catch (error) {
+      logger.error("Error updating panel state on close:", error);
+    }
+    // Close the side panel
+    window.close();
   }
 });
 
 // Load saved preferences
 document.addEventListener("DOMContentLoaded", async () => {
+  // Mark panel as open in storage
+  try {
+    await ExtStorage.session.setPanelOpenState(true);
+  } catch (error) {
+    logger.error("Error setting panel open state:", error);
+  }
+
   // Get containers
   const aiIconsContainer = document.getElementById("ai-icons-container");
   const utilityButtonsContainer = document.getElementById("utility-buttons-container");
@@ -127,7 +143,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   utilityButtonsContainer.appendChild(refreshButton);
 
-  // Create "Open in New Tab" button at the bottom
+  // Create "Open in New Tab" button
   const openTabButton = document.createElement("div");
   openTabButton.className = "open-tab-btn";
   openTabButton.title = "Open current AI in new tab";
@@ -142,6 +158,23 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   utilityButtonsContainer.appendChild(openTabButton);
 
+  // Create "Close" button
+  const closeButton = document.createElement("div");
+  closeButton.className = "open-tab-btn";
+  closeButton.title = "Close side panel";
+  closeButton.innerHTML = "✕";
+
+  closeButton.addEventListener("click", async () => {
+    try {
+      await ExtStorage.session.setPanelOpenState(false);
+    } catch (error) {
+      logger.error("Error updating panel state on close:", error);
+    }
+    window.close();
+  });
+
+  utilityButtonsContainer.appendChild(closeButton);
+
   // Set initial active AI
   let selectedAI = await ExtStorage.local.getSelectedAI();
   selectedAI = selectedAI && selectedAI in URLs ? selectedAI : (Object.keys(URLs)[0] as AiType);
@@ -153,6 +186,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   loadAIInIframe(selectedAI);
+});
+
+// Track when panel is closed
+window.addEventListener("beforeunload", async () => {
+  try {
+    await ExtStorage.session.setPanelOpenState(false);
+  } catch (error) {
+    logger.error("Error setting panel closed state:", error);
+  }
 });
 
 async function loadAIInIframe(aiType: AiType) {

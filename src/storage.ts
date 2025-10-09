@@ -49,5 +49,13 @@ export const ExtStorage = {
     removeSelectionInfo: () => {
       return chrome.storage.session.remove("selectionInfo");
     },
+
+    getPanelOpenState: async (): Promise<boolean> => {
+      const result = await chrome.storage.session.get("panelOpen");
+      return result.panelOpen === true;
+    },
+    setPanelOpenState: (isOpen: boolean) => {
+      return chrome.storage.session.set({ panelOpen: isOpen });
+    },
   },
 };

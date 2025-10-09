@@ -119,19 +119,35 @@ chrome.commands.onCommand.addListener(async (command, tab) => {
         throw new Error("tab is undefined");
       }
 
-      // Open side panel first
+      // ALWAYS open the panel FIRST to preserve user gesture - do this before ANY other operation
+      // https://stackoverflow.com/questions/77213045/error-sidepanel-open-may-only-be-called-in-response-to-a-user-gesture-re
       if (tab.windowId > 0) {
         await chrome.sidePanel.open({ windowId: tab.windowId });
       }
 
-      // Try to get selected text
+      // NOW check if panel was previously open
+      const wasPreviouslyOpen = await ExtStorage.session.getPanelOpenState();
+
+      // Check if there's selected text
       const selectedText = await getSelectedText(tab.id);
 
-      if (selectedText) {
-        await sendTextToSidePanel(selectedText, tab, ContextMenu.AskMyAi);
+      if (wasPreviouslyOpen && !selectedText) {
+        // Panel was open and no text selected -> this is a toggle close
+        await chrome.runtime.sendMessage({
+          action: MessageAction.CLOSE_SIDE_PANEL,
+        });
+        await ExtStorage.session.setPanelOpenState(false);
+      } else {
+        // Keep panel open
+        await ExtStorage.session.setPanelOpenState(true);
+
+        // Send selected text if available
+        if (selectedText) {
+          await sendTextToSidePanel(selectedText, tab, ContextMenu.AskMyAi);
+        }
       }
     } catch (error) {
-      logger.error("Error opening side panel via keyboard shortcut:", error);
+      logger.error("Error handling side panel shortcut:", error);
     }
   }
 });
