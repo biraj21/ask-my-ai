@@ -96,7 +96,7 @@ async function init() {
         const linkUrl = new URL(link.href);
         const currentUrl = new URL(window.location.href);
 
-        if (linkUrl.origin !== currentUrl.origin || linkUrl.pathname !== currentUrl.pathname) {
+        if (linkUrl.origin !== currentUrl.origin) {
           e.preventDefault();
           e.stopPropagation();
           // logger.debug("Intercepting link click, opening in new tab:", link.href);
