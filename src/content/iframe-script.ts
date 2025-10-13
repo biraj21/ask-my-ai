@@ -1,7 +1,15 @@
-import { MessageAction, INJECTION_WINDOW_MS } from "./constants";
-import { logger } from "./logger";
-import type { ExtIframeHandshakeRespMessage, SelectionInfoRespMessage } from "./types";
-import { injectText } from "./utils";
+/**
+ * This script is used to inject text into AI prompt inputs.
+ * It runs whenever the browser loads AI websites like claude.ai, chatgpt.com, etc.,
+ * but this script also does a handshake with side-panel.ts script to ensure that
+ * we only make changes to the AI websites that are currently loaded in this
+ * extension's side panel iframe.
+ */
+
+import { MessageAction, INJECTION_WINDOW_MS, SESSION_STORAGE_KEYS, AI_WEBSITES } from "@/constants";
+import { logger } from "@/logger";
+import type { ExtIframeHandshakeRespMessage, SelectionInfoRespMessage } from "@/types";
+import { injectText } from "@/utils";
 
 let lastSelection: SelectionInfoRespMessage | null = null;
 
@@ -83,6 +91,7 @@ async function init() {
 
   await waitForIframeHandshake();
   logger.debug("iframe ready", window.location.href);
+  sessionStorage.setItem(SESSION_STORAGE_KEYS.IN_SIDE_PANEL, "true");
 
   // Intercept all link clicks and open in new tab instead of navigating in iframe
   document.addEventListener(
@@ -123,19 +132,7 @@ async function init() {
       "search",
     ];
 
-    const aiPlatformNames = [
-      "chatgpt",
-      "claude",
-      "gemini",
-      "perplexity",
-      "openai",
-      "anthropic",
-      "copilot",
-      "bard",
-      "deepseek",
-      "grok",
-      "mistral",
-    ];
+    const aiPlatformNames = Object.keys(AI_WEBSITES);
 
     const keywords = [...chatKeywords, ...aiPlatformNames];
 

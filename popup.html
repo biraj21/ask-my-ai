@@ -13,7 +13,7 @@
       }
 
       body {
-        width: 320px;
+        width: 380px;
         min-height: 280px;
         background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
         color: #ffffff;
@@ -174,23 +174,99 @@
         color: #666;
         font-weight: 400;
       }
+
+      .shortcut-warning {
+        background: rgba(239, 68, 68, 0.08);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        backdrop-filter: blur(10px);
+      }
+
+      .warning-icon {
+        font-size: 32px;
+        margin-bottom: 8px;
+      }
+
+      .warning-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #ef4444;
+        margin-bottom: 8px;
+      }
+
+      .warning-description {
+        font-size: 12px;
+        color: #999;
+        line-height: 1.5;
+        margin-bottom: 12px;
+      }
+
+      .warning-description strong {
+        color: #ef4444;
+        font-weight: 600;
+      }
+
+      .warning-description kbd {
+        background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%);
+        padding: 2px 6px;
+        border-radius: 3px;
+        border: 1px solid #4a4a4a;
+        font-size: 11px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        color: #e0e0e0;
+        font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
+      }
+
+      .warning-button {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+      }
+
+      .warning-button:hover {
+        background: rgba(239, 68, 68, 0.25);
+        border-color: rgba(239, 68, 68, 0.5);
+        transform: translateY(-1px);
+      }
+
+      .warning-button:active {
+        transform: scale(0.98);
+      }
     </style>
   </head>
   <body>
     <div class="header">
       <h1>Ask my AI</h1>
-      <p class="subtitle">Your AI assistant, always ready</p>
+      <p class="subtitle"><strong>Your</strong> AI assistant, always ready</p>
     </div>
 
-    <div class="shortcut-info">
+    <div class="shortcut-info" id="shortcut-info">
       <p class="shortcut-description">Open the sidebar from anywhere</p>
       <div class="shortcut-key">
-        <kbd id="modifier-key">Ctrl</kbd>
+        <kbd data-key="0">Ctrl</kbd>
         <span>+</span>
-        <kbd>Shift</kbd>
+        <kbd data-key="1">Shift</kbd>
         <span>+</span>
-        <kbd>E</kbd>
+        <kbd data-key="2">E</kbd>
       </div>
+    </div>
+
+    <div class="shortcut-warning" id="shortcut-warning" style="display: none">
+      <div class="warning-icon">⚠️</div>
+      <p class="warning-title">Keyboard shortcut unavailable</p>
+      <p class="warning-description">
+        Another extension may be using <strong><kbd id="modifier-key-warning">Ctrl</kbd> + Shift + E</strong>. You can
+        set it manually:
+      </p>
+      <button id="open-shortcuts-page" class="warning-button">Set Keyboard Shortcut</button>
     </div>
 
     <div class="button-container">

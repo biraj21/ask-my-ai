@@ -74,7 +74,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
   });
 
   // Open popup on first install
-  if (details.reason === "install") {
+  if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
     try {
       await chrome.action.openPopup();
     } catch (error) {
@@ -110,6 +110,32 @@ async function getSelectedText(tabId: number): Promise<string | null> {
     return null;
   }
 }
+
+// Handle messages from content scripts
+chrome.runtime.onMessage.addListener(async (message, sender, _sendResponse) => {
+  if (message.action === MessageAction.OPEN_SIDE_PANEL_WITH_TEXT) {
+    try {
+      const tab = sender.tab;
+      if (!tab || !tab.id) {
+        logger.error("No tab found in message sender");
+        return;
+      }
+
+      // Open side panel
+      if (tab.windowId && tab.windowId > 0) {
+        await chrome.sidePanel.open({ windowId: tab.windowId });
+      }
+
+      // Use formatType from message or default to AskMyAi
+      const formatType = message.formatType || ContextMenu.AskMyAi;
+
+      // Send the selected text to the side panel
+      await sendTextToSidePanel(message.text, tab, formatType, message.customPrompt);
+    } catch (error) {
+      logger.error("Error handling OPEN_SIDE_PANEL_WITH_TEXT:", error);
+    }
+  }
+});
 
 // Handle keyboard shortcut commands
 chrome.commands.onCommand.addListener(async (command, tab) => {
@@ -168,7 +194,7 @@ chrome.contextMenus.onClicked.addListener(async function (info, tab) {
       }
 
       // Open side panel
-      if (tab.windowId > 0) {
+      if (tab.windowId && tab.windowId > 0) {
         await chrome.sidePanel.open({ windowId: tab.windowId });
       }
 
@@ -184,9 +210,14 @@ chrome.contextMenus.onClicked.addListener(async function (info, tab) {
   }
 });
 
-async function sendTextToSidePanel(text: string, tab: chrome.tabs.Tab, formatType: ContextMenuValue) {
+async function sendTextToSidePanel(
+  text: string,
+  tab: chrome.tabs.Tab,
+  formatType: ContextMenuValue,
+  customPrompt?: string
+) {
   const selectionInfo: SelectionInfo = {
-    text: formatSelectionText(text, tab, formatType),
+    text: formatSelectionText(text, tab, formatType, customPrompt),
     tabUrl: tab.url || "unknown",
     tabTitle: tab.title || "Untitled",
     timestamp: Date.now(),
@@ -219,11 +250,23 @@ async function sendTextToSidePanel(text: string, tab: chrome.tabs.Tab, formatTyp
   }
 }
 
-function formatSelectionText(text: string, tab: chrome.tabs.Tab, menuItemId: ContextMenuValue) {
+function formatSelectionText(text: string, tab: chrome.tabs.Tab, menuItemId: ContextMenuValue, customPrompt?: string) {
   const baseContext = `Yo I'm reading this page titled '${tab.title}' at ${tab.url}.`;
+
+  // If custom prompt is provided, use it & return early
+  if (customPrompt) {
+    return `${baseContext}
+  
+  ${customPrompt}:
+  
+  <snippet>
+  ${text}
+  </snippet>`;
+  }
 
   let formatted = "";
 
+  // Otherwise use predefined formats
   switch (menuItemId) {
     case ContextMenu.Explain:
       formatted = `${baseContext}

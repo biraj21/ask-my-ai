@@ -2,7 +2,10 @@ import type { AiType, AiConfig } from "./types";
 
 const ICON_BASE_PATH = "public/brands";
 
-export const URLs: Record<AiType, AiConfig> = {
+/**
+ * All the AI websites that this extension supports.
+ */
+export const AI_WEBSITES: Record<AiType, AiConfig> = {
   chatgpt: {
     label: "ChatGPT",
     url: "https://chatgpt.com/",
@@ -22,6 +25,11 @@ export const URLs: Record<AiType, AiConfig> = {
     label: "Perplexity",
     url: "https://perplexity.ai/",
     icon: `${ICON_BASE_PATH}/perplexity-color.svg`,
+  },
+  scira: {
+    label: "Scira",
+    url: "https://scira.ai/",
+    icon: `${ICON_BASE_PATH}/scira.svg`,
   },
   grok: {
     label: "Grok",
@@ -47,11 +55,6 @@ export const URLs: Record<AiType, AiConfig> = {
     label: "Mistral Le Chat",
     url: "https://chat.mistral.ai/chat",
     icon: `${ICON_BASE_PATH}/mistral-color.svg`,
-  },
-  scira: {
-    label: "Scira",
-    url: "https://scira.ai/",
-    icon: `${ICON_BASE_PATH}/scira.svg`,
   },
 };
 
@@ -105,7 +108,17 @@ export const MessageAction = {
    * Service worker sends this to side panel to request closing itself.
    */
   CLOSE_SIDE_PANEL: "CLOSE_SIDE_PANEL",
-};
+
+  /**
+   * Selection popup content script sends this to service worker to open side panel with selected text.
+   */
+  OPEN_SIDE_PANEL_WITH_TEXT: "OPEN_SIDE_PANEL_WITH_TEXT",
+
+  /**
+   * Service worker sends this to content script to show a toast notification.
+   */
+  SHOW_TOAST: "SHOW_TOAST",
+} as const;
 
 export const EXT_NAME = "Ask my AI";
 
@@ -118,3 +131,15 @@ export const MESSAGE_RETRY_CONFIG = {
 // Time window (ms) to auto-inject into new inputs after first injection
 // After this window, new inputs won't get injected (likely post-send inputs)
 export const INJECTION_WINDOW_MS = 500;
+
+export const SESSION_STORAGE_KEYS = {
+  IN_SIDE_PANEL: "in-side-panel",
+} as const;
+
+export const COMMAND_SHORTCUTS = {
+  OPEN_SIDE_PANEL: "open-side-panel",
+} as const;
+
+export const COMMAND_SHORTCUTS_MAP = {
+  [COMMAND_SHORTCUTS.OPEN_SIDE_PANEL]: "⌘/Ctrl + Shift + E",
+} as const;

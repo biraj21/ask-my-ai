@@ -11,9 +11,7 @@
     "scripting",
     "activeTab"
   ],
-  "host_permissions": [
-    "<all_urls>"
-  ],
+  "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "src/service-worker.js"
   },
@@ -38,7 +36,12 @@
         "https://grok.com/*",
         "https://*.grok.com/*"
       ],
-      "js": ["src/content.ts"],
+      "js": ["src/content/iframe-script.ts"],
+      "all_frames": true
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/selection-popup.ts"],
       "all_frames": true
     }
   ],
@@ -62,7 +65,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["public/brands/*.svg"],
+      "resources": ["public/brands/*.svg", "icons/*.png"],
       "matches": ["<all_urls>"]
     }
   ]

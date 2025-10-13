@@ -1,4 +1,4 @@
-import { URLs, MessageAction } from "./constants";
+import { AI_WEBSITES, MessageAction } from "./constants";
 import { logger } from "./logger";
 import type {
   AiType,
@@ -91,7 +91,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // Create icons for each AI
-  for (const [key, value] of Object.entries(URLs)) {
+  for (const [key, value] of Object.entries(AI_WEBSITES)) {
     const iconContainer = document.createElement("div");
     iconContainer.className = "ai-icon";
     iconContainer.dataset.aiType = key;
@@ -177,7 +177,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Set initial active AI
   let selectedAI = await ExtStorage.local.getSelectedAI();
-  selectedAI = selectedAI && selectedAI in URLs ? selectedAI : (Object.keys(URLs)[0] as AiType);
+  selectedAI = selectedAI && selectedAI in AI_WEBSITES ? selectedAI : (Object.keys(AI_WEBSITES)[0] as AiType);
 
   // Mark the selected AI as active
   const activeIcon = aiIconsContainer.querySelector(`[data-ai-type="${selectedAI}"]`);
@@ -198,7 +198,7 @@ window.addEventListener("beforeunload", async () => {
 });
 
 async function loadAIInIframe(aiType: AiType) {
-  const currentAiConfig = URLs[aiType];
+  const currentAiConfig = AI_WEBSITES[aiType];
 
   // save currently selected AI in storage as previous AI
   const prevSelectedAi = await ExtStorage.local.getSelectedAI();
