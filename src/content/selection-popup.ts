@@ -391,10 +391,13 @@ function init() {
 
   // Handle custom input
   const customInput = menuShadow.querySelector(".custom-input") as HTMLInputElement;
+
+  // Stop all keyboard events from bubbling to prevent page interference
   customInput.addEventListener("keydown", async (e) => {
+    e.stopPropagation(); // Stop propagation for all keys
+
     if (e.key === "Enter") {
       e.preventDefault();
-      e.stopPropagation();
 
       const customPrompt = customInput.value.trim();
 
@@ -406,6 +409,19 @@ function init() {
         savedSelectedText = ""; // Clear saved text
       }
     }
+  });
+
+  // Also stop keyup and keypress events from bubbling
+  customInput.addEventListener("keyup", (e) => {
+    e.stopPropagation();
+  });
+
+  customInput.addEventListener("keypress", (e) => {
+    e.stopPropagation();
+  });
+
+  customInput.addEventListener("input", (e) => {
+    e.stopPropagation();
   });
 
   // Prevent input from losing focus when clicking
