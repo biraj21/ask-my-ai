@@ -257,11 +257,11 @@ function formatSelectionText(text: string, tab: chrome.tabs.Tab, menuItemId: Con
   if (customPrompt) {
     return `${baseContext}
   
-  ${customPrompt}:
+${customPrompt}:
   
-  <snippet>
-  ${text}
-  </snippet>`;
+<snippet>
+${text}
+</snippet>`;
   }
 
   let formatted = "";
