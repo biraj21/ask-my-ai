@@ -9,7 +9,6 @@ import type {
   SidePanelToIframeMessage,
 } from "./types";
 import { ExtStorage } from "./storage";
-import { copyToClipboard } from "./utils";
 
 let iframe: HTMLIFrameElement | null = null;
 
@@ -58,8 +57,6 @@ chrome.runtime.onMessage.addListener(async (message) => {
     };
 
     sendMessageToContent(msg);
-
-    await copyToClipboard(msg.selectionInfo.text);
   } else if (message.action === MessageAction.CLOSE_SIDE_PANEL) {
     // Update state before closing
     try {
