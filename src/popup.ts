@@ -108,10 +108,11 @@ async function checkAndDisplayShortcutStatus() {
     const suggestedShortcut = isMac ? "⌘+Shift+E" : "Ctrl+Shift+E";
     const warningDesc = shortcutWarningElement?.querySelector(".warning-description");
     if (warningDesc) {
-      warningDesc.innerHTML = `Another extension may be using <strong><kbd>${suggestedShortcut.replace(
-        /\+/g,
-        "</kbd> + <kbd>"
-      )}</kbd></strong>. You can set it manually:`;
+      warningDesc.innerHTML = `Another extension may be using
+<div id="warning-shortcut">
+<kbd>${suggestedShortcut.replace(/\+/g, "</kbd> + <kbd>")}</kbd>
+</div>
+You can set it manually:`;
     }
   } else {
     // Shortcut is set, show normal info with actual shortcut
@@ -197,8 +198,73 @@ async function initSettings() {
   render();
 }
 
+// Prompt templates functionality
+async function initPromptTemplates() {
+  const promptInput = document.getElementById("new-prompt-input") as HTMLInputElement;
+  const addButton = document.getElementById("add-prompt-btn") as HTMLButtonElement;
+  const promptList = document.getElementById("prompt-list") as HTMLElement;
+
+  if (!promptInput || !addButton || !promptList) {
+    return;
+  }
+
+  const renderPrompts = async () => {
+    const templates = await ExtStorage.local.getPromptTemplates();
+    promptList.innerHTML = "";
+
+    templates.forEach((template, index) => {
+      const item = document.createElement("div");
+      item.className = "prompt-item";
+
+      const textSpan = document.createElement("span");
+      textSpan.className = "prompt-item-text";
+      textSpan.textContent = template;
+      textSpan.title = template;
+
+      const deleteBtn = document.createElement("span");
+      deleteBtn.className = "prompt-delete-btn";
+      deleteBtn.textContent = "×";
+      deleteBtn.title = "Remove template";
+
+      textSpan.addEventListener("click", () => {
+        // Copy template to input field
+        promptInput.value = template;
+        promptInput.focus();
+      });
+
+      deleteBtn.addEventListener("click", async () => {
+        await ExtStorage.local.removePromptTemplate(index);
+        renderPrompts();
+      });
+
+      item.appendChild(textSpan);
+      item.appendChild(deleteBtn);
+      promptList.appendChild(item);
+    });
+  };
+
+  const addTemplate = async () => {
+    const template = promptInput.value.trim();
+    if (template) {
+      await ExtStorage.local.addPromptTemplate(template);
+      promptInput.value = "";
+      renderPrompts();
+    }
+  };
+
+  addButton.addEventListener("click", addTemplate);
+  promptInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      addTemplate();
+    }
+  });
+
+  renderPrompts();
+}
+
 // Initialize popup UI on load
 document.addEventListener("DOMContentLoaded", () => {
   checkAndDisplayShortcutStatus();
   initSettings();
+  initPromptTemplates();
 });

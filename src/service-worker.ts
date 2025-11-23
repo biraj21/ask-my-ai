@@ -15,8 +15,8 @@ const updateContextMenu = async () => {
   });
 };
 
-// Create context menu when extension is installed
-chrome.runtime.onInstalled.addListener(async (details) => {
+// Function to create context menus
+async function createContextMenus() {
   await chrome.contextMenus.removeAll();
 
   chrome.contextMenus.create({
@@ -46,6 +46,32 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     title: "ELI5 (Simplify)",
     contexts: ["selection"],
   });
+
+  // Add custom prompt templates
+  const templates = await ExtStorage.local.getPromptTemplates();
+  if (templates.length > 0) {
+    chrome.contextMenus.create({
+      id: "template-divider",
+      parentId: ContextMenu.AskMyAi,
+      type: "separator",
+      contexts: ["selection"],
+    });
+
+    templates.forEach((template, index) => {
+      const templateId = `template-${index}`;
+      chrome.contextMenus.create({
+        id: templateId,
+        parentId: ContextMenu.AskMyAi,
+        title: template.length > 50 ? template.substring(0, 50) + "..." : template,
+        contexts: ["selection"],
+      });
+    });
+  }
+}
+
+// Create context menu when extension is installed
+chrome.runtime.onInstalled.addListener(async (details) => {
+  await createContextMenus();
 
   const rule: chrome.declarativeNetRequest.Rule = {
     id: 1,
@@ -88,12 +114,17 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 });
 
 // Update context menu on startup
-chrome.runtime.onStartup.addListener(updateContextMenu);
+chrome.runtime.onStartup.addListener(createContextMenus);
 
 // Listen for storage changes and update context menu
 chrome.storage.onChanged.addListener((changes, namespace) => {
-  if (namespace === "local" && changes.selectedAI) {
-    updateContextMenu();
+  if (namespace === "local") {
+    if (changes.selectedAI) {
+      updateContextMenu();
+    }
+    if (changes.promptTemplates) {
+      createContextMenus();
+    }
   }
 });
 
@@ -187,26 +218,35 @@ chrome.contextMenus.onClicked.addListener(async function (info, tab) {
     return;
   }
 
-  if (validMenuIds.includes(info.menuItemId as ContextMenuValue)) {
-    try {
-      if (!tab) {
-        throw new Error("tab is undefined");
-      }
-
-      // Open side panel
-      if (tab.windowId && tab.windowId > 0) {
-        await chrome.sidePanel.open({ windowId: tab.windowId });
-      }
-
-      if (!info.selectionText) {
-        logger.error("No selection text found.");
-        return;
-      }
-
-      await sendTextToSidePanel(info.selectionText, tab, info.menuItemId as ContextMenuValue);
-    } catch (error) {
-      logger.error("Error handling Ask my AI:", error);
+  try {
+    if (!tab) {
+      throw new Error("tab is undefined");
     }
+
+    // Open side panel
+    if (tab.windowId && tab.windowId > 0) {
+      await chrome.sidePanel.open({ windowId: tab.windowId });
+    }
+
+    if (!info.selectionText) {
+      logger.error("No selection text found.");
+      return;
+    }
+
+    // Check if it's a template menu item
+    if (info.menuItemId.startsWith("template-")) {
+      const templateIndex = parseInt(info.menuItemId.replace("template-", ""));
+      const templates = await ExtStorage.local.getPromptTemplates();
+      const template = templates[templateIndex];
+
+      if (template) {
+        await sendTextToSidePanel(info.selectionText, tab, ContextMenu.AskMyAi, template);
+      }
+    } else if (validMenuIds.includes(info.menuItemId as ContextMenuValue)) {
+      await sendTextToSidePanel(info.selectionText, tab, info.menuItemId as ContextMenuValue);
+    }
+  } catch (error) {
+    logger.error("Error handling context menu click:", error);
   }
 });
 

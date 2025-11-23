@@ -102,8 +102,9 @@ export function createSelectionMenu(): HTMLDivElement {
       }
       
       .menu-container {
-        background: #1a1b26;
-        backdrop-filter: blur(12px);
+        background: rgba(17, 24, 39, 0.95);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
         border-radius: 12px;
         box-shadow: 
           0 10px 25px -5px rgba(0, 0, 0, 0.3),
@@ -115,10 +116,10 @@ export function createSelectionMenu(): HTMLDivElement {
       }
       
       .menu-item {
-        padding: 10px 14px;
+        padding: 8px 12px;
         cursor: pointer;
         border-radius: 8px;
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 500;
         color: #e5e7eb;
         transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
@@ -128,7 +129,7 @@ export function createSelectionMenu(): HTMLDivElement {
       }
       
       .menu-item:hover {
-        background: rgba(102, 126, 234, 0.2);
+        background: rgba(255, 255, 255, 0.1);
         color: #ffffff;
       }
       
@@ -138,7 +139,7 @@ export function createSelectionMenu(): HTMLDivElement {
       
       .menu-divider {
         height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1) 50%, transparent);
+        background: rgba(255, 255, 255, 0.1);
         margin: 6px 0;
       }
       
@@ -146,41 +147,83 @@ export function createSelectionMenu(): HTMLDivElement {
         padding: 6px;
       }
       
+      .template-list {
+        display: none;
+        flex-direction: column;
+        gap: 2px;
+        margin-bottom: 8px;
+        max-height: 120px;
+        overflow-y: auto;
+        padding: 0 2px;
+      }
+      
+      /* Custom scrollbar for template list */
+      .template-list::-webkit-scrollbar {
+        width: 4px;
+      }
+      
+      .template-list::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      
+      .template-list::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 4px;
+      }
+      
+      .template-list::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.25);
+      }
+
+      .template-item {
+        padding: 6px 10px;
+        cursor: pointer;
+        border-radius: 6px;
+        font-size: 12px;
+        color: #e5e7eb;
+        transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .template-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+      }
+
       .custom-input {
         width: 100%;
-        padding: 10px 12px;
-        border: 1.5px solid rgba(255, 255, 255, 0.15);
+        padding: 8px 10px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 8px;
         font-size: 13px;
-        font-weight: 500;
+        font-weight: 400;
         font-family: inherit;
         outline: none;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         box-sizing: border-box;
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(0, 0, 0, 0.2);
         color: #ffffff;
       }
       
       .custom-input:focus {
         border-color: #667eea;
-        background: rgba(255, 255, 255, 0.08);
-        box-shadow: 
-          0 0 0 3px rgba(102, 126, 234, 0.15),
-          0 1px 2px rgba(0, 0, 0, 0.1);
+        background: rgba(0, 0, 0, 0.3);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
       }
       
       .custom-input::placeholder {
         color: rgba(255, 255, 255, 0.4);
-        font-weight: 400;
       }
       
       .input-hint {
         font-size: 11px;
-        font-weight: 500;
+        font-weight: 400;
         color: rgba(255, 255, 255, 0.4);
         margin-top: 6px;
         padding: 0 6px;
-        letter-spacing: 0.01em;
       }
     </style>
     <div class="menu-container">
@@ -189,6 +232,7 @@ export function createSelectionMenu(): HTMLDivElement {
       <div class="menu-item" data-action="${ContextMenu.Simplify}">ELI5 (Simplify)</div>
       <div class="menu-divider"></div>
       <div class="custom-input-container">
+        <div class="template-list"></div>
         <input 
           type="text" 
           class="custom-input" 

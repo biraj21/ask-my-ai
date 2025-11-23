@@ -376,6 +376,48 @@ async function init() {
 
     // Handle custom input
     const customInput = menuShadow.querySelector(".custom-input") as HTMLInputElement;
+    const templateList = menuShadow.querySelector(".template-list") as HTMLDivElement;
+
+    // Load templates
+    const loadTemplates = async () => {
+      try {
+        const { promptTemplates } = await chrome.storage.local.get("promptTemplates");
+        const templates = Array.isArray(promptTemplates) ? promptTemplates : [];
+        
+        if (templates.length > 0 && templateList) {
+          templateList.innerHTML = "";
+          templateList.style.display = "flex";
+          
+          templates.forEach((template) => {
+            const templateItem = document.createElement("div");
+            templateItem.className = "template-item";
+            templateItem.textContent = template;
+            templateItem.title = template;
+            
+            templateItem.addEventListener("click", async (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              
+              if (savedSelectedText) {
+                await sendSelectionToSidePanel(savedSelectedText, ContextMenu.AskMyAi, template);
+                hideButton(askButton, selectionMenu);
+                customInput.value = "";
+                clearSavedText();
+              }
+            });
+            
+            templateList.appendChild(templateItem);
+          });
+        } else if (templateList) {
+          templateList.style.display = "none";
+        }
+      } catch (error) {
+        logger.error("Error loading templates:", error);
+      }
+    };
+
+    // Initial load
+    loadTemplates();
 
     // Stop all keyboard events from bubbling
     const stopKeyboardPropagation = (e: Event) => e.stopPropagation();

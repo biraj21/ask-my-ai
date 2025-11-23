@@ -59,6 +59,23 @@ export const ExtStorage = {
     setSelectionButtonEnabled: (enabled: boolean) => {
       return chrome.storage.local.set({ selectionButtonEnabled: enabled });
     },
+
+    getPromptTemplates: async (): Promise<string[]> => {
+      const result = await chrome.storage.local.get("promptTemplates");
+      return Array.isArray(result.promptTemplates) ? result.promptTemplates : [];
+    },
+
+    addPromptTemplate: async (template: string): Promise<void> => {
+      const templates = await ExtStorage.local.getPromptTemplates();
+      const updatedTemplates = [...templates, template];
+      await chrome.storage.local.set({ promptTemplates: updatedTemplates });
+    },
+
+    removePromptTemplate: async (index: number): Promise<void> => {
+      const templates = await ExtStorage.local.getPromptTemplates();
+      const updatedTemplates = templates.filter((_, i) => i !== index);
+      await chrome.storage.local.set({ promptTemplates: updatedTemplates });
+    },
   },
 
   session: {

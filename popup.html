@@ -13,45 +13,59 @@
       }
 
       body {
-        width: 380px;
-        min-height: 280px;
+        width: 640px;
+        height: 480px;
         background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
         color: #ffffff;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+        padding: 16px;
+        overflow: hidden;
+        box-sizing: border-box;
+      }
+
+      .main-layout {
+        display: flex;
+        height: 100%;
+        gap: 20px;
+      }
+
+      .left-panel {
+        flex: 1;
         display: flex;
         flex-direction: column;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
-        padding: 28px 24px 24px;
-        gap: 24px;
+        min-width: 0;
+        text-align: center;
+      }
+
+      .right-panel {
+        width: 300px;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
       }
 
       .header {
         text-align: center;
-        margin-bottom: 8px;
+        margin-bottom: 12px;
+        flex-shrink: 0;
       }
 
       h1 {
-        font-size: 24px;
+        font-size: 20px;
         font-weight: 600;
         letter-spacing: -0.5px;
-        margin-bottom: 8px;
+        margin-bottom: 4px;
         color: #ffffff;
-        background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+        background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
       }
 
       .subtitle {
-        font-size: 13px;
+        font-size: 12px;
         color: #999;
         font-weight: 400;
-      }
-
-      .button-container {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        align-items: center;
       }
 
       button {
@@ -78,20 +92,31 @@
       }
 
       .settings-section {
-        margin-top: 16px;
-        padding: 14px 12px;
-        border-radius: 10px;
+        flex: 1;
+        padding: 16px;
+        border-radius: 12px;
         background: rgba(17, 24, 39, 0.8);
         border: 1px solid rgba(148, 163, 184, 0.2);
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        overflow: hidden;
       }
 
       .settings-title {
-        font-size: 13px;
+        font-size: 14px;
         font-weight: 600;
         color: #e5e7eb;
+        margin-bottom: 12px;
+        flex-shrink: 0;
+      }
+
+      .settings-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        overflow-y: auto;
+        min-height: 0;
       }
 
       .toggle-row {
@@ -106,49 +131,196 @@
       .toggle-row input[type="checkbox"] {
         width: 14px;
         height: 14px;
-        accent-color: #7c3aed;
+        accent-color: #ffffff;
         cursor: pointer;
       }
 
       .settings-hint {
-        font-size: 11px;
+        font-size: 10px;
         color: #6b7280;
         margin-top: 2px;
+        margin-left: 22px;
       }
 
       .ai-settings {
-        margin-top: 4px;
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 8px;
       }
 
       .ai-settings-title {
         font-size: 12px;
         font-weight: 500;
         color: #9ca3af;
+        margin-bottom: 4px;
       }
 
       .ai-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px 10px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 6px;
       }
 
       .ai-item {
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 6px;
         font-size: 11px;
         color: #e5e7eb;
         cursor: pointer;
+        padding: 4px 6px;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+      }
+
+      .ai-item:hover {
+        background: rgba(255, 255, 255, 0.1);
       }
 
       .ai-item input[type="checkbox"] {
         width: 12px;
         height: 12px;
-        accent-color: #7c3aed;
+        accent-color: #ffffff;
         cursor: pointer;
+      }
+
+      .prompt-templates {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .prompt-templates-title {
+        font-size: 12px;
+        font-weight: 500;
+        color: #e5e7eb;
+        margin-bottom: 2px;
+      }
+
+      .prompt-input-group {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .prompt-input {
+        flex: 1;
+        padding: 8px 10px;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 6px;
+        color: #ffffff;
+        font-size: 11px;
+        outline: none;
+        transition: all 0.2s ease;
+      }
+
+      .prompt-input:focus {
+        border-color: rgba(255, 255, 255, 0.4);
+        background: rgba(0, 0, 0, 0.4);
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+      }
+
+      .prompt-input::placeholder {
+        color: rgba(255, 255, 255, 0.3);
+      }
+
+      .prompt-add-btn {
+        padding: 8px 12px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 6px;
+        color: #ffffff;
+        font-size: 11px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+      }
+
+      .prompt-add-btn:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.35);
+        transform: translateY(-1px);
+      }
+
+      .prompt-add-btn:active {
+        transform: translateY(0);
+      }
+
+      .prompt-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        max-height: 140px;
+        overflow-y: auto;
+        padding-right: 2px;
+      }
+
+      .prompt-list::-webkit-scrollbar {
+        width: 4px;
+      }
+
+      .prompt-list::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .prompt-list::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+      }
+
+      .prompt-list::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .prompt-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 6px;
+        font-size: 11px;
+        color: #e5e7eb;
+        min-height: 32px;
+        transition: all 0.2s ease;
+      }
+
+      .prompt-item:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.15);
+        transform: translateX(2px);
+      }
+
+      .prompt-item-text {
+        flex: 1;
+        cursor: pointer;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        line-height: 1.3;
+      }
+
+      .prompt-item-text:hover {
+        color: #ffffff;
+      }
+
+      .prompt-delete-btn {
+        color: #9ca3af;
+        cursor: pointer;
+        padding: 2px 4px;
+        border-radius: 3px;
+        transition: all 0.2s ease;
+        font-size: 14px;
+        flex-shrink: 0;
+        line-height: 1;
+      }
+
+      .prompt-delete-btn:hover {
+        color: #ffffff;
+        background: rgba(239, 68, 68, 0.2);
       }
 
       .links {
@@ -170,7 +342,7 @@
       }
 
       a:hover {
-        color: #a78bfa;
+        color: #ffffff;
         transform: translateX(2px);
       }
 
@@ -198,23 +370,24 @@
       }
 
       .footer a:hover {
-        color: #a78bfa;
+        color: #ffffff;
       }
 
       .shortcut-info {
-        background: rgba(124, 58, 237, 0.08);
-        border: 1px solid rgba(124, 58, 237, 0.2);
-        border-radius: 12px;
-        padding: 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 12px;
         text-align: center;
         backdrop-filter: blur(10px);
+        margin-bottom: 12px;
       }
 
       .shortcut-description {
-        font-size: 12px;
+        font-size: 11px;
         color: #999;
-        margin-bottom: 10px;
-        line-height: 1.4;
+        margin-bottom: 6px;
+        line-height: 1.3;
       }
 
       .shortcut-key {
@@ -222,13 +395,13 @@
         align-items: center;
         gap: 8px;
         background: rgba(30, 30, 30, 0.8);
-        padding: 10px 16px;
-        border-radius: 8px;
+        padding: 8px 12px;
+        border-radius: 6px;
         font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
-        font-size: 14px;
-        color: #a78bfa;
+        font-size: 12px;
+        color: #ffffff;
         font-weight: 600;
-        border: 1px solid rgba(124, 58, 237, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.2);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       }
 
@@ -252,29 +425,34 @@
       .shortcut-warning {
         background: rgba(239, 68, 68, 0.08);
         border: 1px solid rgba(239, 68, 68, 0.3);
-        border-radius: 12px;
-        padding: 20px;
+        border-radius: 8px;
+        padding: 12px;
         text-align: center;
         backdrop-filter: blur(10px);
+        margin-bottom: 12px;
+      }
+
+      #warning-shortcut {
+        margin: 12px 0;
       }
 
       .warning-icon {
-        font-size: 32px;
-        margin-bottom: 8px;
+        font-size: 24px;
+        margin-bottom: 4px;
       }
 
       .warning-title {
-        font-size: 14px;
+        font-size: 16px;
         font-weight: 600;
         color: #ef4444;
-        margin-bottom: 8px;
+        margin-bottom: 4px;
       }
 
       .warning-description {
-        font-size: 12px;
         color: #999;
-        line-height: 1.5;
-        margin-bottom: 12px;
+        font-size: 14px;
+        line-height: 1.4;
+        margin-bottom: 8px;
       }
 
       .warning-description strong {
@@ -287,7 +465,6 @@
         padding: 2px 6px;
         border-radius: 3px;
         border: 1px solid #4a4a4a;
-        font-size: 11px;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         color: #e0e0e0;
         font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
@@ -297,10 +474,9 @@
         background: rgba(239, 68, 68, 0.15);
         color: #ef4444;
         border: 1px solid rgba(239, 68, 68, 0.3);
-        padding: 10px 20px;
+        padding: 8px 12px;
         border-radius: 8px;
         cursor: pointer;
-        font-size: 13px;
         font-weight: 500;
         transition: all 0.2s ease;
       }
@@ -317,57 +493,71 @@
     </style>
   </head>
   <body>
-    <div class="header">
-      <h1>Ask my AI</h1>
-      <p class="subtitle"><strong>Your</strong> AI assistant, always ready</p>
-    </div>
+    <div class="main-layout">
+      <div class="left-panel">
+        <div class="header">
+          <h1>Ask my AI</h1>
+          <p class="subtitle"><strong>Your</strong> AI assistant, always ready</p>
+        </div>
 
-    <div class="shortcut-info" id="shortcut-info">
-      <p class="shortcut-description">Open the sidebar from anywhere</p>
-      <div class="shortcut-key">
-        <kbd data-key="0">Ctrl</kbd>
-        <span>+</span>
-        <kbd data-key="1">Shift</kbd>
-        <span>+</span>
-        <kbd data-key="2">E</kbd>
+        <div class="shortcut-info" id="shortcut-info">
+          <p class="shortcut-description">Open sidebar:</p>
+          <div class="shortcut-key">
+            <kbd data-key="0">Ctrl</kbd>
+            <span>+</span>
+            <kbd data-key="1">Shift</kbd>
+            <span>+</span>
+            <kbd data-key="2">E</kbd>
+          </div>
+        </div>
+
+        <div class="shortcut-warning" id="shortcut-warning" style="display: none">
+          <div class="warning-icon">⚠️</div>
+          <p class="warning-title">Shortcut unavailable</p>
+          <p class="warning-description">
+            <strong><kbd id="warning-shortcut">Ctrl</kbd> + Shift + E</strong> taken by another extension.
+          </p>
+          <button id="open-shortcuts-page" class="warning-button">Set Shortcut</button>
+        </div>
+
+        <button id="open-sidebar">or click here to open it</button>
+
+        <div class="links">
+          <a href="https://summerlabs.xyz/ask-my-ai" target="_blank">Visit Homepage →</a>
+        </div>
+
+        <div class="footer">by <a href="https://x.com/biraj21_" target="_blank">Biraj</a></div>
+      </div>
+
+      <div class="right-panel">
+        <div class="settings-section">
+          <h2 class="settings-title">Preferences</h2>
+
+          <div class="settings-content">
+            <label class="toggle-row">
+              <input type="checkbox" id="toggle-selection-button" checked />
+              <span>Show floating selection button</span>
+            </label>
+            <p class="settings-hint">Changes take effect after refreshing the current page.</p>
+
+            <div class="ai-settings">
+              <p class="ai-settings-title">Visible AI providers</p>
+              <div id="ai-list" class="ai-list"></div>
+              <p class="settings-hint">Changes take effect after reopening the side panel.</p>
+            </div>
+
+            <div class="prompt-templates">
+              <p class="prompt-templates-title">Custom prompt templates</p>
+              <div class="prompt-input-group">
+                <input type="text" id="new-prompt-input" class="prompt-input" placeholder="Add a custom prompt..." />
+                <button id="add-prompt-btn" class="prompt-add-btn">Add</button>
+              </div>
+              <div id="prompt-list" class="prompt-list"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-
-    <div class="shortcut-warning" id="shortcut-warning" style="display: none">
-      <div class="warning-icon">⚠️</div>
-      <p class="warning-title">Keyboard shortcut unavailable</p>
-      <p class="warning-description">
-        Another extension may be using <strong><kbd id="modifier-key-warning">Ctrl</kbd> + Shift + E</strong>. You can
-        set it manually:
-      </p>
-      <button id="open-shortcuts-page" class="warning-button">Set Keyboard Shortcut</button>
-    </div>
-
-    <div class="button-container">
-      <button id="open-sidebar">or click here to open it</button>
-    </div>
-
-    <div class="settings-section">
-      <h2 class="settings-title">Preferences</h2>
-
-      <label class="toggle-row">
-        <input type="checkbox" id="toggle-selection-button" checked />
-        <span>Show floating selection button</span>
-      </label>
-      <p class="settings-hint">Changes take effect after refreshing the current page.</p>
-
-      <div class="ai-settings">
-        <p class="ai-settings-title">Visible AI providers</p>
-        <div id="ai-list" class="ai-list"></div>
-        <p class="settings-hint">Changes take effect after reopening the side panel.</p>
-      </div>
-    </div>
-
-    <div class="links">
-      <a href="https://summerlabs.xyz/ask-my-ai" target="_blank">Visit Homepage →</a>
-    </div>
-
-    <div class="footer">by <a href="https://x.com/biraj21_" target="_blank">Biraj</a></div>
 
     <script type="module" src="/src/popup.ts"></script>
   </body>
