@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Ask My AI: Free ChatGPT, Claude, Perplexity Sidebar",
-  "version": "0.0.6",
+  "name": "Ask My AI: Free Sidebar for ChatGPT, Claude, Perplexity",
+  "version": "0.0.7",
   "description": "Your AI assistant, always one click away. Highlight text on any page to explain with ChatGPT, Claude, DeepSeek, Perplexity, & more.",
   "permissions": [
     "contextMenus",

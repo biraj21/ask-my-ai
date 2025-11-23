@@ -215,8 +215,6 @@ function init() {
     return;
   }
 
-  logger.debug(`selection popup initializing on`, window.location.href);
-
   // Create and append the button and menu
   const askButton = createAskButton();
   const selectionMenu = createSelectionMenu();
@@ -299,6 +297,13 @@ function init() {
         hideButton(askButton, selectionMenu, () => (savedSelectedText = ""));
       }
     }, 10);
+  });
+
+  // Handle Escape key to close popup and menu
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      hideButton(askButton, selectionMenu, () => (savedSelectedText = ""));
+    }
   });
 
   // Hide button when clicking elsewhere
@@ -473,17 +478,13 @@ function init() {
     },
     true
   );
-
-  logger.debug(`selection popup fully initialized on`, window.location.href);
 }
 
 // Run initialization with multiple attempts
 try {
   if (document.readyState === "loading") {
-    logger.debug(`waiting for DOMContentLoaded...`);
     document.addEventListener("DOMContentLoaded", init);
   } else {
-    logger.debug(`DOM already loaded, initializing now...`);
     init();
   }
 } catch (error) {
