@@ -21,6 +21,7 @@
         padding: 16px;
         overflow: hidden;
         box-sizing: border-box;
+        position: relative;
       }
 
       .main-layout {
@@ -35,6 +36,9 @@
         flex-direction: column;
         min-width: 0;
         text-align: center;
+        max-height: 100%;
+        overflow: hidden;
+        gap: 10px;
       }
 
       .right-panel {
@@ -44,28 +48,76 @@
         min-width: 0;
       }
 
-      .header {
+      .left-panel__header {
         text-align: center;
-        margin-bottom: 12px;
         flex-shrink: 0;
+        margin-bottom: 10px;
       }
 
-      h1 {
-        font-size: 20px;
-        font-weight: 600;
-        letter-spacing: -0.5px;
+      .left-panel__title {
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: -0.8px;
         margin-bottom: 4px;
         color: #ffffff;
-        background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
+        background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 50%, #a1a1aa 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+        text-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
       }
 
-      .subtitle {
-        font-size: 12px;
-        color: #999;
+      .left-panel__subtitle {
+        font-size: 11px;
+        color: #888;
         font-weight: 400;
+        letter-spacing: 0.3px;
+      }
+
+      .left-panel__open-btn {
+        padding: 10px 24px;
+        background: rgba(255, 255, 255, 0.04);
+        color: #aaa;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 500;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        flex-shrink: 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .left-panel__open-btn::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+      }
+
+      .left-panel__open-btn:hover::before {
+        width: 300px;
+        height: 300px;
+      }
+
+      .left-panel__open-btn:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+
+      .left-panel__open-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
       }
 
       button {
@@ -139,7 +191,6 @@
         font-size: 10px;
         color: #6b7280;
         margin-top: 2px;
-        margin-left: 22px;
       }
 
       .ai-settings {
@@ -323,13 +374,89 @@
         background: rgba(239, 68, 68, 0.2);
       }
 
-      .links {
+      .left-panel__footer {
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 8px;
         margin-top: auto;
-        padding-top: 20px;
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        flex-shrink: 0;
+      }
+
+      .left-panel__link-buttons {
+        display: flex;
+        gap: 8px;
+      }
+
+      .left-panel__link-btn {
+        flex: 1;
+        color: #9ca3af;
+        text-decoration: none;
+        font-size: 11px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-align: center;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        padding: 7px 10px;
+        border-radius: 7px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .left-panel__link-btn::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        transform: translate(-50%, -50%);
+        transition: width 0.5s, height 0.5s;
+      }
+
+      .left-panel__link-btn:hover::before {
+        width: 200px;
+        height: 200px;
+      }
+
+      .left-panel__link-btn:hover {
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .left-panel__link-icon {
+        font-size: 13px;
+        transition: transform 0.3s ease;
+      }
+
+      .left-panel__link-btn:hover .left-panel__link-icon {
+        transform: scale(1.15);
+      }
+
+      .left-panel__credits {
+        text-align: center;
+      }
+
+      .left-panel__credits-link {
+        color: #888;
+        text-decoration: none;
+        font-size: 11px;
+        transition: all 0.2s ease;
+        font-weight: 400;
+        display: inline-block;
+      }
+
+      .left-panel__credits-link:hover {
+        color: #bbb;
       }
 
       a {
@@ -356,153 +483,183 @@
         color: #a78bfa;
       }
 
-      .footer {
+      .left-panel__privacy-notice {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.12) 0%, rgba(59, 130, 246, 0.12) 100%);
+        border: 1px solid rgba(34, 197, 94, 0.35);
+        border-radius: 10px;
+        padding: 10px 14px;
+        margin-top: auto;
         text-align: center;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+        position: relative;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+
+      .left-panel__privacy-notice::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #22c55e, #3b82f6, #22c55e);
+        opacity: 0.7;
+      }
+
+      .left-panel__privacy-text {
         font-size: 11px;
-        color: #666;
-        margin-top: 4px;
+        font-weight: 600;
+        color: #f0f9ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        letter-spacing: 0.2px;
       }
 
-      .footer a {
-        color: #888;
-        font-size: 11px;
-        transition: color 0.2s ease;
-      }
-
-      .footer a:hover {
-        color: #ffffff;
-      }
-
-      .shortcut-info {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
+      .left-panel__shortcut-info {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 10px;
         padding: 12px;
         text-align: center;
         backdrop-filter: blur(10px);
-        margin-bottom: 12px;
+        flex-shrink: 0;
+        position: relative;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       }
 
-      .shortcut-description {
-        font-size: 11px;
-        color: #999;
+      .left-panel__shortcut-description {
+        font-size: 10px;
+        color: #888;
         margin-bottom: 6px;
         line-height: 1.3;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 500;
       }
 
-      .shortcut-key {
+      .left-panel__shortcut-keys {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        background: rgba(30, 30, 30, 0.8);
-        padding: 8px 12px;
-        border-radius: 6px;
+        gap: 6px;
+        background: rgba(20, 20, 20, 0.9);
+        padding: 8px 14px;
+        border-radius: 8px;
         font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
-        font-size: 12px;
+        font-size: 11px;
         color: #ffffff;
         font-weight: 600;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
       }
 
-      .shortcut-key kbd {
-        background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%);
-        padding: 6px 10px;
-        border-radius: 5px;
-        border: 1px solid #4a4a4a;
-        font-size: 12px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        color: #e0e0e0;
-        min-width: 28px;
+      .left-panel__shortcut-keys kbd {
+        background: linear-gradient(180deg, #404040 0%, #2a2a2a 100%);
+        padding: 4px 8px;
+        border-radius: 4px;
+        border: 1px solid #555;
+        font-size: 11px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        color: #f0f0f0;
+        min-width: 24px;
         text-align: center;
       }
 
-      .shortcut-key span {
-        color: #666;
+      .left-panel__shortcut-keys span {
+        color: #555;
         font-weight: 400;
+        font-size: 10px;
       }
 
-      .shortcut-warning {
-        background: rgba(239, 68, 68, 0.08);
-        border: 1px solid rgba(239, 68, 68, 0.3);
-        border-radius: 8px;
-        padding: 12px;
+      .left-panel__shortcut-warning {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        border-radius: 10px;
+        padding: 10px;
         text-align: center;
         backdrop-filter: blur(10px);
-        margin-bottom: 12px;
+        flex-shrink: 0;
+        box-shadow: 0 2px 10px rgba(239, 68, 68, 0.1);
       }
 
       #warning-shortcut {
         margin: 12px 0;
       }
 
-      .warning-icon {
-        font-size: 24px;
-        margin-bottom: 4px;
+      .left-panel__warning-icon {
+        font-size: 20px;
+        margin-bottom: 2px;
       }
 
-      .warning-title {
-        font-size: 16px;
+      .left-panel__warning-title {
+        font-size: 13px;
         font-weight: 600;
         color: #ef4444;
         margin-bottom: 4px;
       }
 
-      .warning-description {
+      .left-panel__warning-description {
         color: #999;
-        font-size: 14px;
-        line-height: 1.4;
+        font-size: 11px;
+        line-height: 1.3;
         margin-bottom: 8px;
       }
 
-      .warning-description strong {
+      .left-panel__warning-description strong {
         color: #ef4444;
         font-weight: 600;
       }
 
-      .warning-description kbd {
+      .left-panel__warning-description kbd {
         background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%);
-        padding: 2px 6px;
+        padding: 2px 5px;
         border-radius: 3px;
         border: 1px solid #4a4a4a;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         color: #e0e0e0;
         font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
+        font-size: 10px;
       }
 
-      .warning-button {
+      .left-panel__warning-btn {
         background: rgba(239, 68, 68, 0.15);
         color: #ef4444;
-        border: 1px solid rgba(239, 68, 68, 0.3);
-        padding: 8px 12px;
-        border-radius: 8px;
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        padding: 6px 14px;
+        border-radius: 6px;
         cursor: pointer;
         font-weight: 500;
+        font-size: 11px;
         transition: all 0.2s ease;
       }
 
-      .warning-button:hover {
+      .left-panel__warning-btn:hover {
         background: rgba(239, 68, 68, 0.25);
         border-color: rgba(239, 68, 68, 0.5);
         transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
       }
 
-      .warning-button:active {
-        transform: scale(0.98);
+      .left-panel__warning-btn:active {
+        transform: translateY(0);
       }
     </style>
   </head>
   <body>
     <div class="main-layout">
       <div class="left-panel">
-        <div class="header">
-          <h1>Ask my AI</h1>
-          <p class="subtitle"><strong>Your</strong> AI assistant, always ready</p>
+        <div class="left-panel__header">
+          <h1 class="left-panel__title">Ask my AI</h1>
+          <p class="left-panel__subtitle"><u>Your</u> AI assistant, always ready</p>
         </div>
 
-        <div class="shortcut-info" id="shortcut-info">
-          <p class="shortcut-description">Open sidebar:</p>
-          <div class="shortcut-key">
+        <div class="left-panel__shortcut-info" id="shortcut-info">
+          <p class="left-panel__shortcut-description">Open sidebar using</p>
+          <div class="left-panel__shortcut-keys">
             <kbd data-key="0">Ctrl</kbd>
             <span>+</span>
             <kbd data-key="1">Shift</kbd>
@@ -511,22 +668,37 @@
           </div>
         </div>
 
-        <div class="shortcut-warning" id="shortcut-warning" style="display: none">
-          <div class="warning-icon">⚠️</div>
-          <p class="warning-title">Shortcut unavailable</p>
-          <p class="warning-description">
+        <div class="left-panel__shortcut-warning" id="shortcut-warning" style="display: none">
+          <div class="left-panel__warning-icon">⚠️</div>
+          <p class="left-panel__warning-title">Shortcut unavailable</p>
+          <p class="left-panel__warning-description">
             <strong><kbd id="warning-shortcut">Ctrl</kbd> + Shift + E</strong> taken by another extension.
           </p>
-          <button id="open-shortcuts-page" class="warning-button">Set Shortcut</button>
+          <button id="open-shortcuts-page" class="left-panel__warning-btn">Set Shortcut</button>
         </div>
 
-        <button id="open-sidebar">or click here to open it</button>
+        <button id="open-sidebar" class="left-panel__open-btn">or click here to open it</button>
 
-        <div class="links">
-          <a href="https://summerlabs.xyz/ask-my-ai" target="_blank">Visit Homepage →</a>
+        <div class="left-panel__privacy-notice">
+          <p class="left-panel__privacy-text">Open source • No servers • Zero data collection</p>
         </div>
 
-        <div class="footer">by <a href="https://x.com/biraj21_" target="_blank">Biraj</a></div>
+        <div class="left-panel__footer">
+          <div class="left-panel__link-buttons">
+            <a href="https://summerlabs.xyz/ask-my-ai" target="_blank" class="left-panel__link-btn">
+              <span class="left-panel__link-icon">🏠</span>
+              Homepage
+            </a>
+            <a href="https://github.com/biraj21/ask-my-ai" target="_blank" class="left-panel__link-btn">
+              <span class="left-panel__link-icon">📖</span>
+              Open Source
+            </a>
+          </div>
+
+          <div class="left-panel__credits">
+            <a href="https://x.com/biraj21_" target="_blank" class="left-panel__credits-link">by Biraj</a>
+          </div>
+        </div>
       </div>
 
       <div class="right-panel">

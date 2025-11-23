@@ -73,7 +73,7 @@ function formatShortcut(shortcut: string): string[] {
 }
 
 function updateShortcutDisplay(shortcut: string, containerId: string) {
-  const container = document.querySelector(`#${containerId} .shortcut-key`);
+  const container = document.querySelector(`#${containerId} .left-panel__shortcut-keys`);
   if (!container) return;
 
   const parts = formatShortcut(shortcut);
@@ -106,13 +106,12 @@ async function checkAndDisplayShortcutStatus() {
 
     // Show the suggested shortcut in the warning
     const suggestedShortcut = isMac ? "⌘+Shift+E" : "Ctrl+Shift+E";
-    const warningDesc = shortcutWarningElement?.querySelector(".warning-description");
+    const warningDesc = shortcutWarningElement?.querySelector(".left-panel__warning-description");
     if (warningDesc) {
       warningDesc.innerHTML = `Another extension may be using
 <div id="warning-shortcut">
 <kbd>${suggestedShortcut.replace(/\+/g, "</kbd> + <kbd>")}</kbd>
-</div>
-You can set it manually:`;
+</div>`;
     }
   } else {
     // Shortcut is set, show normal info with actual shortcut
