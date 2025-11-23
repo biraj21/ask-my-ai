@@ -87,8 +87,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  // Create icons for each AI
+  // Determine which AIs should be shown (enabled list in settings)
+  let enabledAIs = await ExtStorage.local.getEnabledAIs();
+  if (!enabledAIs || enabledAIs.length === 0) {
+    enabledAIs = Object.keys(AI_WEBSITES) as AiType[];
+  }
+
+  // Create icons for each enabled AI
   for (const [key, value] of Object.entries(AI_WEBSITES)) {
+    if (!enabledAIs.includes(key as AiType)) {
+      continue;
+    }
+
     const iconContainer = document.createElement("div");
     iconContainer.className = "ai-icon";
     iconContainer.dataset.aiType = key;
@@ -128,7 +138,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Create "Refresh" button
   const refreshButton = document.createElement("div");
   refreshButton.className = "open-tab-btn";
-  refreshButton.title = "Refresh current AI page";
+  refreshButton.title = "Refresh this";
   refreshButton.innerHTML = "↻";
 
   refreshButton.addEventListener("click", () => {
@@ -143,7 +153,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Create "Open in New Tab" button
   const openTabButton = document.createElement("div");
   openTabButton.className = "open-tab-btn";
-  openTabButton.title = "Open current AI in new tab";
+  openTabButton.title = "Open this in new tab";
   openTabButton.innerHTML = "↗";
 
   openTabButton.addEventListener("click", () => {
@@ -172,9 +182,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   utilityButtonsContainer.appendChild(closeButton);
 
-  // Set initial active AI
+  // Set initial active AI, preferring user's last choice within enabled AIs
   let selectedAI = await ExtStorage.local.getSelectedAI();
-  selectedAI = selectedAI && selectedAI in AI_WEBSITES ? selectedAI : (Object.keys(AI_WEBSITES)[0] as AiType);
+  if (!selectedAI || !enabledAIs.includes(selectedAI) || !(selectedAI in AI_WEBSITES)) {
+    selectedAI = enabledAIs[0] as AiType;
+  }
 
   // Mark the selected AI as active
   const activeIcon = aiIconsContainer.querySelector(`[data-ai-type="${selectedAI}"]`);

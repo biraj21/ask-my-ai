@@ -152,7 +152,7 @@ chrome.runtime.onMessage.addListener((message) => {
 });
 
 // Main initialization
-function init() {
+async function init() {
   if (!chrome.runtime?.id) {
     logger.error("Extension context invalidated at init. Skipping initialization.");
     return;
@@ -163,6 +163,18 @@ function init() {
     return;
   }
 
+  // Check global setting for floating selection button
+  try {
+    const { selectionButtonEnabled } = await chrome.storage.local.get("selectionButtonEnabled");
+    if (selectionButtonEnabled === false) {
+      logger.debug("Selection button disabled in settings. Skipping initialization.");
+      return;
+    }
+  } catch (error) {
+    logger.error("Error reading selection button setting:", error);
+    // In case of error, fall through and still show the button
+  }
+
   // Create and append the button (menu will be lazy-loaded on first hover)
   const askButton = createAskButton();
   document.body.appendChild(askButton);
@@ -171,7 +183,6 @@ function init() {
   let selectionMenu: HTMLDivElement | null = null;
   let selectionTimeout: number | null = null;
   let menuTimeout: number | null = null;
-  let scrollTimeout: number | null = null;
   let lastMouseX = 0;
   let lastMouseY = 0;
   let savedSelectedText = "";
@@ -407,27 +418,13 @@ function init() {
     }
   });
 
-  // Hide button when scrolling
+  // Hide button when scrolling - gentler behavior:
+  // if the button is visible and user scrolls, simply hide it.
   document.addEventListener(
     "scroll",
     () => {
-      if (askButton.style.display === "flex") {
-        askButton.style.opacity = "0.3";
-
-        if (scrollTimeout) {
-          clearTimeout(scrollTimeout);
-        }
-
-        scrollTimeout = window.setTimeout(() => {
-          const selection = window.getSelection();
-          if (isValidSelection(selection)) {
-            positionButton(askButton, lastMouseX, lastMouseY);
-            askButton.style.opacity = "1";
-          } else {
-            hideButton(askButton, selectionMenu, clearSavedText);
-            askButton.style.opacity = "1";
-          }
-        }, 150);
+      if (askButton.style.display !== "none") {
+        hideButton(askButton, selectionMenu, clearSavedText);
       }
     },
     true

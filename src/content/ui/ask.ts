@@ -195,7 +195,7 @@ export function createSelectionMenu(): HTMLDivElement {
           placeholder="Custom prompt..."
           autocomplete="off"
         />
-        <div class="input-hint">Enter to send | Esc to cancel</div>
+        <div class="input-hint"><u>Enter</u> to send | <u>Esc</u> to cancel</div>
       </div>
     </div>
   `;

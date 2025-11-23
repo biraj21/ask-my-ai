@@ -1,4 +1,5 @@
-import { COMMAND_SHORTCUTS } from "./constants";
+import { AI_WEBSITES, COMMAND_SHORTCUTS } from "./constants";
+import { ExtStorage } from "./storage";
 import { isItMac } from "./utils";
 
 const isMac = isItMac();
@@ -124,5 +125,80 @@ async function checkAndDisplayShortcutStatus() {
   }
 }
 
-// Check shortcut status on load
-document.addEventListener("DOMContentLoaded", checkAndDisplayShortcutStatus);
+async function initSettings() {
+  // Floating selection button toggle
+  const selectionToggle = document.getElementById("toggle-selection-button") as HTMLInputElement | null;
+  if (selectionToggle) {
+    try {
+      const enabled = await ExtStorage.local.getSelectionButtonEnabled();
+      selectionToggle.checked = enabled;
+
+      selectionToggle.addEventListener("change", async () => {
+        await ExtStorage.local.setSelectionButtonEnabled(selectionToggle.checked);
+      });
+    } catch (error) {
+      console.error("Error initializing selection button toggle:", error);
+    }
+  }
+
+  // AI visibility settings
+  const aiListContainer = document.getElementById("ai-list");
+  if (!aiListContainer) {
+    return;
+  }
+
+  let enabledAIs = await ExtStorage.local.getEnabledAIs();
+  const allAiKeys = Object.keys(AI_WEBSITES) as (keyof typeof AI_WEBSITES)[];
+
+  // Default: all enabled
+  if (!enabledAIs || enabledAIs.length === 0) {
+    enabledAIs = allAiKeys as any;
+  }
+
+  const render = () => {
+    aiListContainer.innerHTML = "";
+
+    allAiKeys.forEach((key) => {
+      const item = document.createElement("label");
+      item.className = "ai-item";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = enabledAIs!.includes(key as any);
+
+      const span = document.createElement("span");
+      span.textContent = AI_WEBSITES[key].label;
+
+      item.appendChild(checkbox);
+      item.appendChild(span);
+
+      checkbox.addEventListener("change", async () => {
+        const currentlyEnabled = new Set(enabledAIs);
+
+        if (checkbox.checked) {
+          currentlyEnabled.add(key as any);
+        } else {
+          // Prevent disabling all providers – keep at least one
+          if (currentlyEnabled.size <= 1) {
+            checkbox.checked = true;
+            return;
+          }
+          currentlyEnabled.delete(key as any);
+        }
+
+        enabledAIs = Array.from(currentlyEnabled) as any;
+        await ExtStorage.local.setEnabledAIs(enabledAIs as any);
+      });
+
+      aiListContainer.appendChild(item);
+    });
+  };
+
+  render();
+}
+
+// Initialize popup UI on load
+document.addEventListener("DOMContentLoaded", () => {
+  checkAndDisplayShortcutStatus();
+  initSettings();
+});

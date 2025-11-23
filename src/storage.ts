@@ -27,6 +27,38 @@ export const ExtStorage = {
     setPrevSelectedAI: (prevSelectedAI: string) => {
       return chrome.storage.local.set({ prevSelectedAI });
     },
+
+    /**
+     * List of enabled AI providers for the side panel.
+     * If not set, all AIs are considered enabled.
+     */
+    getEnabledAIs: async (): Promise<AiType[] | null> => {
+      const { enabledAIs } = await chrome.storage.local.get("enabledAIs");
+      if (Array.isArray(enabledAIs)) {
+        return enabledAIs as AiType[];
+      }
+      return null;
+    },
+
+    setEnabledAIs: (enabledAIs: AiType[]) => {
+      return chrome.storage.local.set({ enabledAIs });
+    },
+
+    /**
+     * Global toggle for the floating selection button.
+     * Defaults to true when not explicitly set.
+     */
+    getSelectionButtonEnabled: async (): Promise<boolean> => {
+      const { selectionButtonEnabled } = await chrome.storage.local.get("selectionButtonEnabled");
+      if (typeof selectionButtonEnabled === "boolean") {
+        return selectionButtonEnabled;
+      }
+      return true;
+    },
+
+    setSelectionButtonEnabled: (enabled: boolean) => {
+      return chrome.storage.local.set({ selectionButtonEnabled: enabled });
+    },
   },
 
   session: {

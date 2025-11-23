@@ -77,6 +77,80 @@
         transform: scale(0.98);
       }
 
+      .settings-section {
+        margin-top: 16px;
+        padding: 14px 12px;
+        border-radius: 10px;
+        background: rgba(17, 24, 39, 0.8);
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .settings-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #e5e7eb;
+      }
+
+      .toggle-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: #d1d5db;
+        cursor: pointer;
+      }
+
+      .toggle-row input[type="checkbox"] {
+        width: 14px;
+        height: 14px;
+        accent-color: #7c3aed;
+        cursor: pointer;
+      }
+
+      .settings-hint {
+        font-size: 11px;
+        color: #6b7280;
+        margin-top: 2px;
+      }
+
+      .ai-settings {
+        margin-top: 4px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .ai-settings-title {
+        font-size: 12px;
+        font-weight: 500;
+        color: #9ca3af;
+      }
+
+      .ai-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 10px;
+      }
+
+      .ai-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        color: #e5e7eb;
+        cursor: pointer;
+      }
+
+      .ai-item input[type="checkbox"] {
+        width: 12px;
+        height: 12px;
+        accent-color: #7c3aed;
+        cursor: pointer;
+      }
+
       .links {
         display: flex;
         flex-direction: column;
@@ -271,6 +345,21 @@
 
     <div class="button-container">
       <button id="open-sidebar">or click here to open it</button>
+    </div>
+
+    <div class="settings-section">
+      <h2 class="settings-title">Preferences</h2>
+
+      <label class="toggle-row">
+        <input type="checkbox" id="toggle-selection-button" checked />
+        <span>Show floating selection button</span>
+      </label>
+      <p class="settings-hint">Changes take effect after refreshing the current page.</p>
+
+      <div class="ai-settings">
+        <p class="ai-settings-title">Visible AI providers</p>
+        <div id="ai-list" class="ai-list"></div>
+      </div>
     </div>
 
     <div class="links">
