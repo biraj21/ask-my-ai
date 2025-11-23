@@ -3,76 +3,57 @@ import { logger } from "../logger";
 import { showToast } from "./ui/toast";
 import { createAskButton, createSelectionMenu, positionMenu } from "./ui/ask";
 
+const SELECTION_DEBOUNCE_MS = 50;
+const MENU_HIDE_DELAY_MS = 200;
+const MENU_ANIMATION_DELAY_MS = 200;
+
 // Hide menu
 function hideMenu(menu: HTMLElement, clearSavedText?: () => void) {
   menu.classList.remove("show");
-
-  // Wait for animation to finish before hiding
   setTimeout(() => {
     menu.style.display = "none";
-    if (clearSavedText) {
-      clearSavedText();
-    }
-  }, 200);
+    clearSavedText?.();
+  }, MENU_ANIMATION_DELAY_MS);
 }
 
 // Position the button near the cursor position with smart edge detection
 function positionButton(button: HTMLElement, mouseX: number, mouseY: number) {
-  const offset = 5; // Distance from cursor (very close for immediate clicking)
-  const edgeMargin = 20; // Minimum distance from viewport edges
+  const offset = 5;
+  const edgeMargin = 20;
 
-  // Get viewport boundaries
   const viewportTop = window.scrollY + edgeMargin;
   const viewportBottom = window.scrollY + window.innerHeight - edgeMargin;
   const viewportLeft = window.scrollX + edgeMargin;
   const viewportRight = window.scrollX + window.innerWidth - edgeMargin;
 
-  // Get button dimensions (approximate if not yet rendered)
   const buttonWidth = button.offsetWidth || 120;
   const buttonHeight = button.offsetHeight || 40;
 
-  // Calculate available space in each direction
+  // Calculate available space
   const spaceRight = viewportRight - mouseX - offset;
   const spaceLeft = mouseX - viewportLeft - offset;
   const spaceBelow = viewportBottom - mouseY - offset;
   const spaceAbove = mouseY - viewportTop - offset;
 
-  let top: number;
+  // Determine horizontal position (prefer right, fallback to left)
   let left: number;
-
-  // Determine horizontal position (prefer right, but use left if needed)
   if (spaceRight >= buttonWidth) {
-    // Enough space on the right
     left = mouseX + offset;
   } else if (spaceLeft >= buttonWidth) {
-    // Not enough space on right, use left
     left = mouseX - buttonWidth - offset;
   } else {
-    // Not enough space on either side, center horizontally or use available space
-    if (spaceRight > spaceLeft) {
-      left = mouseX + offset;
-    } else {
-      left = mouseX - buttonWidth - offset;
-    }
-    // Clamp to viewport
+    left = spaceRight > spaceLeft ? mouseX + offset : mouseX - buttonWidth - offset;
     left = Math.max(viewportLeft, Math.min(left, viewportRight - buttonWidth));
   }
 
-  // Determine vertical position (prefer below, but use above if needed)
+  // Determine vertical position (prefer below, fallback to above)
+  let top: number;
   if (spaceBelow >= buttonHeight) {
-    // Enough space below
     top = mouseY + offset;
   } else if (spaceAbove >= buttonHeight) {
-    // Not enough space below, use above
     top = mouseY - buttonHeight - offset;
   } else {
-    // Not enough space above or below, use available space
-    if (spaceBelow > spaceAbove) {
-      top = mouseY + offset;
-    } else {
-      top = mouseY - buttonHeight - offset;
-    }
-    // Clamp to viewport
+    top = spaceBelow > spaceAbove ? mouseY + offset : mouseY - buttonHeight - offset;
     top = Math.max(viewportTop, Math.min(top, viewportBottom - buttonHeight));
   }
 
@@ -86,7 +67,7 @@ function positionButton(button: HTMLElement, mouseX: number, mouseY: number) {
 }
 
 // Hide the button (Shadow DOM host element)
-function hideButton(button: HTMLElement, menu?: HTMLElement, clearSavedText?: () => void) {
+function hideButton(button: HTMLElement, menu?: HTMLElement | null, clearSavedText?: () => void) {
   button.style.display = "none";
   if (menu) {
     hideMenu(menu, clearSavedText);
@@ -104,98 +85,67 @@ function isValidSelection(selection: Selection | null): boolean {
     return false;
   }
 
-  // Don't show button in input fields or contenteditable elements
   const anchorNode = selection.anchorNode;
-  if (!anchorNode) return false;
-
-  const parentElement = anchorNode.parentElement;
-  if (!parentElement) return false;
-
-  const tagName = parentElement.tagName.toLowerCase();
-  if (tagName === "input" || tagName === "textarea") {
+  if (!anchorNode?.parentElement) {
     return false;
   }
 
-  if (parentElement.isContentEditable) {
-    return false;
-  }
+  const parent = anchorNode.parentElement;
+  const tagName = parent.tagName.toLowerCase();
 
-  return true;
+  return tagName !== "input" && tagName !== "textarea" && !parent.isContentEditable;
+}
+
+// Get selected text, trimmed
+function getSelectedText(): string {
+  return window.getSelection()?.toString().trim() || "";
+}
+
+// Handle extension context errors
+function handleExtensionError(error: unknown): void {
+  const err = error as Error;
+  const message = err.message || "";
+
+  if (message.includes("Extension context invalidated")) {
+    logger.error("Extension context invalidated. Please refresh the page.");
+    showToast("Extension was updated. Please refresh this page.", "info", 7000);
+  } else if (message.includes("Could not establish connection")) {
+    logger.error("Could not establish connection with extension");
+    showToast("Failed to connect. Try refreshing the page.", "error", 5000);
+  } else {
+    logger.error("Error sending selection to side panel:", error);
+    showToast("Something went wrong. Please try again.", "error", 4000);
+  }
 }
 
 // Send selected text to service worker to open side panel
-async function sendSelectionToSidePanel(text: string, formatType: ContextMenuValue = ContextMenu.AskMyAi) {
-  try {
-    // Check if extension context is valid
-    if (!chrome.runtime?.id) {
-      logger.error("Extension context invalidated. Please refresh the page.");
-      showToast("Extension was updated. Please refresh this page.", "info", 7000);
-      return;
-    }
-
-    // Send message to service worker
-    const message = {
-      action: MessageAction.OPEN_SIDE_PANEL_WITH_TEXT,
-      text: text,
-      formatType: formatType,
-      url: window.location.href,
-      title: document.title,
-    };
-
-    await chrome.runtime.sendMessage(message);
-  } catch (error) {
-    const err = error as Error;
-    if (err.message?.includes("Extension context invalidated")) {
-      logger.error("Extension context invalidated. Please refresh the page.");
-      showToast("Extension was updated. Please refresh this page.", "info", 7000);
-    } else if (err.message?.includes("Could not establish connection")) {
-      logger.error("Could not establish connection with extension");
-      showToast("Failed to connect. Try refreshing the page.", "error", 5000);
-    } else {
-      logger.error("Error sending selection to side panel:", error);
-      showToast("Something went wrong. Please try again.", "error", 4000);
-    }
+async function sendSelectionToSidePanel(
+  text: string,
+  formatType: ContextMenuValue = ContextMenu.AskMyAi,
+  customPrompt?: string
+): Promise<void> {
+  if (!chrome.runtime?.id) {
+    logger.error("Extension context invalidated. Please refresh the page.");
+    showToast("Extension was updated. Please refresh this page.", "info", 7000);
+    return;
   }
-}
 
-// Send selected text with custom prompt to service worker
-async function sendSelectionToSidePanelWithCustomPrompt(text: string, customPrompt: string) {
   try {
-    // Check if extension context is valid
-    if (!chrome.runtime?.id) {
-      logger.error("Extension context invalidated. Please refresh the page.");
-      showToast("Extension was updated. Please refresh this page.", "info", 7000);
-      return;
-    }
-
-    // Send message to service worker with custom prompt
-    const message = {
+    await chrome.runtime.sendMessage({
       action: MessageAction.OPEN_SIDE_PANEL_WITH_TEXT,
-      text: text,
-      formatType: ContextMenu.AskMyAi,
-      customPrompt: customPrompt,
+      text,
+      formatType: customPrompt ? ContextMenu.AskMyAi : formatType,
+      customPrompt,
       url: window.location.href,
       title: document.title,
-    };
-
-    await chrome.runtime.sendMessage(message);
+    });
   } catch (error) {
-    const err = error as Error;
-    if (err.message?.includes("Extension context invalidated")) {
-      logger.error("Extension context invalidated. Please refresh the page.");
-      showToast("Extension was updated. Please refresh this page.", "info", 7000);
-    } else if (err.message?.includes("Could not establish connection")) {
-      logger.error("Could not establish connection with extension");
-      showToast("Failed to connect. Try refreshing the page.", "error", 5000);
-    } else {
-      logger.error("Error sending selection to side panel:", error);
-      showToast("Something went wrong. Please try again.", "error", 4000);
-    }
+    handleExtensionError(error);
   }
 }
 
 // Listen for messages from service worker (e.g., to show toasts)
-chrome.runtime.onMessage.addListener((message, _sender, _sendResponse) => {
+chrome.runtime.onMessage.addListener((message) => {
   if (message.action === MessageAction.SHOW_TOAST) {
     showToast(message.message, message.type || "error", message.duration || 5000);
   }
@@ -203,29 +153,77 @@ chrome.runtime.onMessage.addListener((message, _sender, _sendResponse) => {
 
 // Main initialization
 function init() {
-  // Check if extension context is valid
   if (!chrome.runtime?.id) {
     logger.error("Extension context invalidated at init. Skipping initialization.");
     return;
   }
 
-  // Wait for body to be available
   if (!document.body) {
     logger.warn("Document body not available yet, skipping init");
     return;
   }
 
-  // Create and append the button and menu
+  // Create and append the button (menu will be lazy-loaded on first hover)
   const askButton = createAskButton();
-  const selectionMenu = createSelectionMenu();
   document.body.appendChild(askButton);
-  document.body.appendChild(selectionMenu);
 
+  // Lazy-loaded menu (created only when needed)
+  let selectionMenu: HTMLDivElement | null = null;
   let selectionTimeout: number | null = null;
+  let menuTimeout: number | null = null;
+  let scrollTimeout: number | null = null;
   let lastMouseX = 0;
   let lastMouseY = 0;
-  let menuTimeout: number | null = null;
-  let savedSelectedText = ""; // Store selected text when menu appears
+  let savedSelectedText = "";
+
+  // Helper: Clear selection timeout
+  const clearSelectionTimeout = () => {
+    if (selectionTimeout) {
+      clearTimeout(selectionTimeout);
+      selectionTimeout = null;
+    }
+  };
+
+  // Helper: Check if click is on button or menu
+  const isClickOnButtonOrMenu = (target: EventTarget | null): boolean => {
+    if (!target) {
+      return false;
+    }
+    if (target === askButton || askButton.contains(target as Node)) {
+      return true;
+    }
+    if (selectionMenu && (target === selectionMenu || selectionMenu.contains(target as Node))) {
+      return true;
+    }
+    return false;
+  };
+
+  // Helper: Clear saved text
+  const clearSavedText = () => {
+    savedSelectedText = "";
+  };
+
+  // Helper: Handle selection change
+  const handleSelectionChange = (positionX?: number, positionY?: number) => {
+    clearSelectionTimeout();
+
+    selectionTimeout = window.setTimeout(() => {
+      const selection = window.getSelection();
+
+      if (isValidSelection(selection)) {
+        if (positionX !== undefined && positionY !== undefined) {
+          positionButton(askButton, positionX, positionY);
+        } else {
+          // For keyboard selection, position near the end of selection
+          const range = selection!.getRangeAt(0);
+          const rect = range.getBoundingClientRect();
+          positionButton(askButton, window.scrollX + rect.right, window.scrollY + rect.bottom);
+        }
+      } else {
+        hideButton(askButton, selectionMenu, clearSavedText);
+      }
+    }, SELECTION_DEBOUNCE_MS);
+  };
 
   // Track mouse position
   document.addEventListener("mousemove", (e) => {
@@ -233,231 +231,187 @@ function init() {
     lastMouseY = e.pageY;
   });
 
-  // Handle text selection
+  // Handle text selection (mouse)
   document.addEventListener("mouseup", (e) => {
-    // Don't reposition if clicking on the button or menu
-    if (
-      e.target === askButton ||
-      askButton.contains(e.target as Node) ||
-      e.target === selectionMenu ||
-      selectionMenu.contains(e.target as Node)
-    ) {
+    if (isClickOnButtonOrMenu(e.target)) {
       return;
     }
 
-    // Update position on mouseup
     lastMouseX = e.pageX;
     lastMouseY = e.pageY;
-
-    // Clear any pending timeout
-    if (selectionTimeout) {
-      clearTimeout(selectionTimeout);
-    }
-
-    // Small delay to ensure selection is complete
-    selectionTimeout = window.setTimeout(() => {
-      const selection = window.getSelection();
-
-      if (isValidSelection(selection)) {
-        positionButton(askButton, lastMouseX, lastMouseY);
-      } else {
-        hideButton(askButton, selectionMenu, () => (savedSelectedText = ""));
-      }
-    }, 10);
+    handleSelectionChange(lastMouseX, lastMouseY);
   });
 
-  // Handle keyboard selection (e.g., Shift+Arrow keys)
-  // Only reposition for actual text selection keys, not keyboard shortcuts
+  // Handle keyboard selection
   const textSelectionKeys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "PageUp", "PageDown"];
 
   document.addEventListener("keyup", (e) => {
-    // Ignore if Ctrl, Alt, or Meta (Cmd) are pressed (indicates a shortcut, not selection)
     if (e.ctrlKey || e.altKey || e.metaKey) {
       return;
     }
-
-    // Only handle actual text selection keys
     if (!textSelectionKeys.includes(e.key)) {
       return;
     }
 
-    if (selectionTimeout) {
-      clearTimeout(selectionTimeout);
-    }
-
-    selectionTimeout = window.setTimeout(() => {
-      const selection = window.getSelection();
-
-      if (isValidSelection(selection)) {
-        // For keyboard selection, position near the end of selection
-        const range = selection!.getRangeAt(0);
-        const rect = range.getBoundingClientRect();
-        positionButton(askButton, window.scrollX + rect.right, window.scrollY + rect.bottom);
-      } else {
-        hideButton(askButton, selectionMenu, () => (savedSelectedText = ""));
-      }
-    }, 10);
+    handleSelectionChange();
   });
 
   // Handle Escape key to close popup and menu
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
-      hideButton(askButton, selectionMenu, () => (savedSelectedText = ""));
+      hideButton(askButton, selectionMenu, clearSavedText);
     }
   });
 
   // Hide button when clicking elsewhere
   document.addEventListener("mousedown", (e) => {
-    // Don't hide if clicking on button or menu
-    if (
-      e.target === askButton ||
-      askButton.contains(e.target as Node) ||
-      e.target === selectionMenu ||
-      selectionMenu.contains(e.target as Node)
-    ) {
+    if (isClickOnButtonOrMenu(e.target)) {
       return;
     }
 
-    // Small delay to allow button click to register
+    clearSelectionTimeout();
+
     setTimeout(() => {
       const selection = window.getSelection();
       if (!isValidSelection(selection)) {
-        hideButton(askButton, selectionMenu, () => (savedSelectedText = ""));
+        hideButton(askButton, selectionMenu, clearSavedText);
       }
-    }, 100);
+    }, SELECTION_DEBOUNCE_MS + 50);
   });
+
+  // Initialize menu lazily on first hover
+  const initializeMenu = (): void => {
+    if (selectionMenu) {
+      return;
+    }
+
+    selectionMenu = createSelectionMenu();
+    document.body.appendChild(selectionMenu);
+    setupMenuEventListeners();
+  };
 
   // Show menu on button hover
   askButton.addEventListener("mouseenter", () => {
-    if (menuTimeout) clearTimeout(menuTimeout);
-
-    // Capture selected text when menu appears
-    const selection = window.getSelection();
-    if (selection && selection.toString().trim()) {
-      savedSelectedText = selection.toString().trim();
+    if (menuTimeout) {
+      clearTimeout(menuTimeout);
     }
 
-    positionMenu(selectionMenu, askButton);
+    initializeMenu();
+
+    const text = getSelectedText();
+    if (text) {
+      savedSelectedText = text;
+    }
+
+    if (selectionMenu) {
+      positionMenu(selectionMenu, askButton);
+    }
   });
 
-  // Keep menu open when hovering over it
-  selectionMenu.addEventListener("mouseenter", () => {
-    if (menuTimeout) clearTimeout(menuTimeout);
-  });
+  // Setup menu event listeners (called after menu is created)
+  function setupMenuEventListeners() {
+    if (!selectionMenu) {
+      return;
+    }
 
-  // Prevent menu from being hidden when clicking inside it
-  selectionMenu.addEventListener("click", (e) => {
-    e.stopPropagation();
-  });
-
-  selectionMenu.addEventListener("mousedown", (e) => {
-    e.stopPropagation();
-  });
-
-  // Hide menu when mouse leaves both button and menu
-  const handleMouseLeave = () => {
-    menuTimeout = window.setTimeout(() => {
-      hideMenu(selectionMenu, () => (savedSelectedText = ""));
-    }, 200);
-  };
-
-  askButton.addEventListener("mouseleave", handleMouseLeave);
-  selectionMenu.addEventListener("mouseleave", handleMouseLeave);
-
-  // Handle menu item clicks
-  const menuShadow = selectionMenu.shadowRoot!;
-  const menuContainer = menuShadow.querySelector(".menu-container") as HTMLElement;
-
-  // Prevent all events from bubbling out of menu container
-  menuContainer.addEventListener("mousedown", (e) => {
-    e.stopPropagation();
-  });
-
-  menuContainer.addEventListener("mouseup", (e) => {
-    e.stopPropagation();
-  });
-
-  menuShadow.querySelectorAll(".menu-item").forEach((item) => {
-    item.addEventListener("click", async (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-
-      const action = (item as HTMLElement).getAttribute("data-action") as ContextMenuValue;
-
-      if (savedSelectedText) {
-        await sendSelectionToSidePanel(savedSelectedText, action);
-        hideButton(askButton, selectionMenu);
-        savedSelectedText = ""; // Clear saved text
-      } else {
-        logger.warn("No saved selection found when menu item clicked");
+    // Keep menu open when hovering over it
+    selectionMenu.addEventListener("mouseenter", () => {
+      if (menuTimeout) {
+        clearTimeout(menuTimeout);
       }
     });
-  });
 
-  // Handle custom input
-  const customInput = menuShadow.querySelector(".custom-input") as HTMLInputElement;
+    // Prevent menu events from bubbling
+    const stopPropagation = (e: Event) => e.stopPropagation();
+    selectionMenu.addEventListener("click", stopPropagation);
+    selectionMenu.addEventListener("mousedown", stopPropagation);
 
-  // Stop all keyboard events from bubbling to prevent page interference
-  customInput.addEventListener("keydown", async (e) => {
-    e.stopPropagation(); // Stop propagation for all keys
+    // Hide menu when mouse leaves both button and menu
+    const handleMouseLeave = () => {
+      menuTimeout = window.setTimeout(() => {
+        if (selectionMenu) {
+          hideMenu(selectionMenu, clearSavedText);
+        }
+      }, MENU_HIDE_DELAY_MS);
+    };
 
-    if (e.key === "Enter") {
-      e.preventDefault();
+    askButton.addEventListener("mouseleave", handleMouseLeave);
+    selectionMenu.addEventListener("mouseleave", handleMouseLeave);
 
-      const customPrompt = customInput.value.trim();
+    // Handle menu item clicks
+    const menuShadow = selectionMenu.shadowRoot!;
+    const menuContainer = menuShadow.querySelector(".menu-container") as HTMLElement;
 
-      if (savedSelectedText && customPrompt) {
-        // Send with custom prompt in proper format
-        await sendSelectionToSidePanelWithCustomPrompt(savedSelectedText, customPrompt);
-        hideButton(askButton, selectionMenu);
-        customInput.value = ""; // Clear input
-        savedSelectedText = ""; // Clear saved text
+    // Prevent events from bubbling out of menu container
+    menuContainer.addEventListener("mousedown", stopPropagation);
+    menuContainer.addEventListener("mouseup", stopPropagation);
+
+    menuShadow.querySelectorAll(".menu-item").forEach((item) => {
+      item.addEventListener("click", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const action = (item as HTMLElement).getAttribute("data-action") as ContextMenuValue;
+
+        if (savedSelectedText) {
+          await sendSelectionToSidePanel(savedSelectedText, action);
+          hideButton(askButton, selectionMenu);
+          clearSavedText();
+        } else {
+          logger.warn("No saved selection found when menu item clicked");
+        }
+      });
+    });
+
+    // Handle custom input
+    const customInput = menuShadow.querySelector(".custom-input") as HTMLInputElement;
+
+    // Stop all keyboard events from bubbling
+    const stopKeyboardPropagation = (e: Event) => e.stopPropagation();
+    customInput.addEventListener("keydown", async (e) => {
+      stopKeyboardPropagation(e);
+
+      if (e.key === "Enter") {
+        e.preventDefault();
+
+        const customPrompt = customInput.value.trim();
+
+        if (savedSelectedText && customPrompt) {
+          await sendSelectionToSidePanel(savedSelectedText, ContextMenu.AskMyAi, customPrompt);
+          hideButton(askButton, selectionMenu);
+          customInput.value = "";
+          clearSavedText();
+        }
       }
-    }
-  });
+    });
 
-  // Also stop keyup and keypress events from bubbling
-  customInput.addEventListener("keyup", (e) => {
-    e.stopPropagation();
-  });
-
-  customInput.addEventListener("keypress", (e) => {
-    e.stopPropagation();
-  });
-
-  customInput.addEventListener("input", (e) => {
-    e.stopPropagation();
-  });
-
-  // Prevent input from losing focus when clicking
-  customInput.addEventListener("click", (e) => {
-    e.stopPropagation();
-  });
+    customInput.addEventListener("keyup", stopKeyboardPropagation);
+    customInput.addEventListener("keypress", stopKeyboardPropagation);
+    customInput.addEventListener("input", stopKeyboardPropagation);
+    customInput.addEventListener("click", stopKeyboardPropagation);
+  }
 
   // Handle button click (fallback if user clicks before hover)
   askButton.addEventListener("click", async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    // Use saved text if available, otherwise get fresh selection
-    const textToSend = savedSelectedText || window.getSelection()?.toString().trim() || "";
+    const textToSend = savedSelectedText || getSelectedText();
 
     if (textToSend) {
       await sendSelectionToSidePanel(textToSend);
       hideButton(askButton, selectionMenu);
-      savedSelectedText = ""; // Clear saved text
+      clearSavedText();
     } else {
       logger.warn("No valid selection found when button was clicked");
     }
   });
 
   // Hide button when scrolling
-  let scrollTimeout: number | null = null;
   document.addEventListener(
     "scroll",
     () => {
       if (askButton.style.display === "flex") {
-        // Hide temporarily during scroll
         askButton.style.opacity = "0.3";
 
         if (scrollTimeout) {
@@ -470,7 +424,7 @@ function init() {
             positionButton(askButton, lastMouseX, lastMouseY);
             askButton.style.opacity = "1";
           } else {
-            hideButton(askButton, selectionMenu, () => (savedSelectedText = ""));
+            hideButton(askButton, selectionMenu, clearSavedText);
             askButton.style.opacity = "1";
           }
         }, 150);
@@ -480,7 +434,7 @@ function init() {
   );
 }
 
-// Run initialization with multiple attempts
+// Run initialization
 try {
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
