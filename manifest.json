@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Ask My AI: Free Sidebar for ChatGPT, Claude, Perplexity",
-  "version": "0.0.7",
+  "name": "AI Anywhere (Multi-AI Sidebar)",
+  "version": "0.0.8",
   "description": "Your AI assistant, always one click away. Highlight text on any page to explain with ChatGPT, Claude, DeepSeek, Perplexity, & more.",
   "permissions": [
     "contextMenus",
@@ -47,7 +47,7 @@
   ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Ask My AI Settings"
+    "default_title": "AI Anywhere Settings"
   },
   "commands": {
     "open-side-panel": {
@@ -55,7 +55,7 @@
         "default": "Ctrl+Shift+E",
         "mac": "Command+Shift+E"
       },
-      "description": "Open Ask My AI sidebar"
+      "description": "Open AI Anywhere sidebar"
     }
   },
   "icons": {

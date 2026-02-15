@@ -6,6 +6,7 @@ import { createAskButton, createSelectionMenu, positionMenu } from "./ui/ask";
 const SELECTION_DEBOUNCE_MS = 50;
 const MENU_HIDE_DELAY_MS = 200;
 const MENU_ANIMATION_DELAY_MS = 200;
+const SCROLL_HIDE_THRESHOLD = 150;
 
 // Hide menu
 function hideMenu(menu: HTMLElement, clearSavedText?: () => void) {
@@ -186,6 +187,7 @@ async function init() {
   let lastMouseX = 0;
   let lastMouseY = 0;
   let savedSelectedText = "";
+  let buttonScrollY = 0;
 
   // Helper: Clear selection timeout
   const clearSelectionTimeout = () => {
@@ -230,6 +232,7 @@ async function init() {
           const rect = range.getBoundingClientRect();
           positionButton(askButton, window.scrollX + rect.right, window.scrollY + rect.bottom);
         }
+        buttonScrollY = window.scrollY;
       } else {
         hideButton(askButton, selectionMenu, clearSavedText);
       }
@@ -460,13 +463,15 @@ async function init() {
     }
   });
 
-  // Hide button when scrolling - gentler behavior:
-  // if the button is visible and user scrolls, simply hide it.
+  // Hide button when scrolling - only if scrolled significantly
   document.addEventListener(
     "scroll",
     () => {
       if (askButton.style.display !== "none") {
-        hideButton(askButton, selectionMenu, clearSavedText);
+        const scrollDelta = Math.abs(window.scrollY - buttonScrollY);
+        if (scrollDelta > SCROLL_HIDE_THRESHOLD) {
+          hideButton(askButton, selectionMenu, clearSavedText);
+        }
       }
     },
     true

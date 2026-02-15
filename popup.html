@@ -5,6 +5,12 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ask-my-ai</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
       * {
         margin: 0;
@@ -15,14 +21,19 @@
       body {
         width: 640px;
         height: 480px;
-        background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
-        color: #ffffff;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
-        padding: 16px;
+        background: linear-gradient(160deg, #171717 0%, #0f0f0f 100%);
+        color: #e7e5e4;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        padding: 20px;
         overflow: hidden;
-        box-sizing: border-box;
-        position: relative;
+        -webkit-font-smoothing: antialiased;
       }
+
+      /* Scrollbar */
+      ::-webkit-scrollbar { width: 4px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
 
       .main-layout {
         display: flex;
@@ -30,583 +41,117 @@
         gap: 20px;
       }
 
+      /* ── Left Panel ── */
       .left-panel {
         flex: 1;
         display: flex;
         flex-direction: column;
-        min-width: 0;
+        align-items: center;
         text-align: center;
-        max-height: 100%;
-        overflow: hidden;
-        gap: 10px;
-      }
-
-      .right-panel {
-        width: 300px;
-        display: flex;
-        flex-direction: column;
         min-width: 0;
+        gap: 12px;
       }
 
       .left-panel__header {
-        text-align: center;
+        margin-top: 12px;
         flex-shrink: 0;
-        margin-bottom: 10px;
       }
 
       .left-panel__title {
         font-size: 24px;
         font-weight: 700;
-        letter-spacing: -0.8px;
+        letter-spacing: -0.6px;
+        color: #fafaf9;
         margin-bottom: 4px;
-        color: #ffffff;
-        background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 50%, #a1a1aa 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        text-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
       }
 
       .left-panel__subtitle {
-        font-size: 11px;
-        color: #888;
-        font-weight: 400;
-        letter-spacing: 0.3px;
-      }
-
-      .left-panel__open-btn {
-        padding: 10px 24px;
-        background: rgba(255, 255, 255, 0.04);
-        color: #aaa;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 8px;
-        cursor: pointer;
         font-size: 12px;
-        font-weight: 500;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        flex-shrink: 0;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .left-panel__open-btn::before {
-        content: "";
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.1);
-        transform: translate(-50%, -50%);
-        transition: width 0.6s, height 0.6s;
-      }
-
-      .left-panel__open-btn:hover::before {
-        width: 300px;
-        height: 300px;
-      }
-
-      .left-panel__open-btn:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: #fff;
-        border-color: rgba(255, 255, 255, 0.3);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      }
-
-      .left-panel__open-btn:active {
-        transform: translateY(0);
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-      }
-
-      button {
-        padding: 8px 20px;
-        background: transparent;
-        color: #888;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 12px;
-        font-weight: 400;
-        transition: all 0.2s ease;
-      }
-
-      button:hover {
-        background: rgba(255, 255, 255, 0.05);
-        color: #aaa;
-        border-color: rgba(255, 255, 255, 0.15);
-      }
-
-      button:active {
-        background: rgba(255, 255, 255, 0.08);
-        transform: scale(0.98);
-      }
-
-      .settings-section {
-        flex: 1;
-        padding: 16px;
-        border-radius: 12px;
-        background: rgba(17, 24, 39, 0.8);
-        border: 1px solid rgba(148, 163, 184, 0.2);
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-      }
-
-      .settings-title {
-        font-size: 14px;
-        font-weight: 600;
-        color: #e5e7eb;
-        margin-bottom: 12px;
-        flex-shrink: 0;
-      }
-
-      .settings-content {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        overflow-y: auto;
-        min-height: 0;
-      }
-
-      .toggle-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 12px;
-        color: #d1d5db;
-        cursor: pointer;
-      }
-
-      .toggle-row input[type="checkbox"] {
-        width: 14px;
-        height: 14px;
-        accent-color: #ffffff;
-        cursor: pointer;
-      }
-
-      .settings-hint {
-        font-size: 10px;
-        color: #6b7280;
-        margin-top: 2px;
-      }
-
-      .ai-settings {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-
-      .ai-settings-title {
-        font-size: 12px;
-        font-weight: 500;
-        color: #9ca3af;
-        margin-bottom: 4px;
-      }
-
-      .ai-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 6px;
-      }
-
-      .ai-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 11px;
-        color: #e5e7eb;
-        cursor: pointer;
-        padding: 4px 6px;
-        border-radius: 4px;
-        transition: background-color 0.2s;
-      }
-
-      .ai-item:hover {
-        background: rgba(255, 255, 255, 0.1);
-      }
-
-      .ai-item input[type="checkbox"] {
-        width: 12px;
-        height: 12px;
-        accent-color: #ffffff;
-        cursor: pointer;
-      }
-
-      .prompt-templates {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .prompt-templates-title {
-        font-size: 12px;
-        font-weight: 500;
-        color: #e5e7eb;
-        margin-bottom: 2px;
-      }
-
-      .prompt-input-group {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-      }
-
-      .prompt-input {
-        flex: 1;
-        padding: 8px 10px;
-        background: rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 6px;
-        color: #ffffff;
-        font-size: 11px;
-        outline: none;
-        transition: all 0.2s ease;
-      }
-
-      .prompt-input:focus {
-        border-color: rgba(255, 255, 255, 0.4);
-        background: rgba(0, 0, 0, 0.4);
-        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
-      }
-
-      .prompt-input::placeholder {
-        color: rgba(255, 255, 255, 0.3);
-      }
-
-      .prompt-add-btn {
-        padding: 8px 12px;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 6px;
-        color: #ffffff;
-        font-size: 11px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        white-space: nowrap;
-      }
-
-      .prompt-add-btn:hover {
-        background: rgba(255, 255, 255, 0.15);
-        border-color: rgba(255, 255, 255, 0.35);
-        transform: translateY(-1px);
-      }
-
-      .prompt-add-btn:active {
-        transform: translateY(0);
-      }
-
-      .prompt-list {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        max-height: 140px;
-        overflow-y: auto;
-        padding-right: 2px;
-      }
-
-      .prompt-list::-webkit-scrollbar {
-        width: 4px;
-      }
-
-      .prompt-list::-webkit-scrollbar-track {
-        background: transparent;
-      }
-
-      .prompt-list::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 4px;
-      }
-
-      .prompt-list::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.2);
-      }
-
-      .prompt-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 10px;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 6px;
-        font-size: 11px;
-        color: #e5e7eb;
-        min-height: 32px;
-        transition: all 0.2s ease;
-      }
-
-      .prompt-item:hover {
-        background: rgba(255, 255, 255, 0.08);
-        border-color: rgba(255, 255, 255, 0.15);
-        transform: translateX(2px);
-      }
-
-      .prompt-item-text {
-        flex: 1;
-        cursor: pointer;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        line-height: 1.3;
-      }
-
-      .prompt-item-text:hover {
-        color: #ffffff;
-      }
-
-      .prompt-delete-btn {
-        color: #9ca3af;
-        cursor: pointer;
-        padding: 2px 4px;
-        border-radius: 3px;
-        transition: all 0.2s ease;
-        font-size: 14px;
-        flex-shrink: 0;
-        line-height: 1;
-      }
-
-      .prompt-delete-btn:hover {
-        color: #ffffff;
-        background: rgba(239, 68, 68, 0.2);
-      }
-
-      .left-panel__footer {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        margin-top: auto;
-        flex-shrink: 0;
-      }
-
-      .left-panel__link-buttons {
-        display: flex;
-        gap: 8px;
-      }
-
-      .left-panel__link-btn {
-        flex: 1;
-        color: #9ca3af;
-        text-decoration: none;
-        font-size: 11px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        text-align: center;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 5px;
-        padding: 7px 10px;
-        border-radius: 7px;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        position: relative;
-        overflow: hidden;
-      }
-
-      .left-panel__link-btn::before {
-        content: "";
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.08);
-        transform: translate(-50%, -50%);
-        transition: width 0.5s, height 0.5s;
-      }
-
-      .left-panel__link-btn:hover::before {
-        width: 200px;
-        height: 200px;
-      }
-
-      .left-panel__link-btn:hover {
-        color: #ffffff;
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.2);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      }
-
-      .left-panel__link-icon {
-        font-size: 13px;
-        transition: transform 0.3s ease;
-      }
-
-      .left-panel__link-btn:hover .left-panel__link-icon {
-        transform: scale(1.15);
-      }
-
-      .left-panel__credits {
-        text-align: center;
-      }
-
-      .left-panel__credits-link {
-        color: #888;
-        text-decoration: none;
-        font-size: 11px;
-        transition: all 0.2s ease;
-        font-weight: 400;
-        display: inline-block;
-      }
-
-      .left-panel__credits-link:hover {
-        color: #bbb;
-      }
-
-      a {
-        color: #9ca3af;
-        text-decoration: none;
-        font-size: 13px;
-        transition: all 0.2s ease;
-        text-align: center;
+        color: #78716c;
         font-weight: 400;
       }
 
-      a:hover {
-        color: #ffffff;
-        transform: translateX(2px);
+      .left-panel__subtitle u {
+        text-decoration-color: #57534e;
       }
 
-      a:visited,
-      a:active {
-        color: #9ca3af;
-      }
-
-      a:visited:hover,
-      a:active:hover {
-        color: #a78bfa;
-      }
-
-      .left-panel__privacy-notice {
-        background: linear-gradient(135deg, rgba(34, 197, 94, 0.12) 0%, rgba(59, 130, 246, 0.12) 100%);
-        border: 1px solid rgba(34, 197, 94, 0.35);
-        border-radius: 10px;
-        padding: 10px 14px;
-        margin-top: auto;
-        text-align: center;
-        backdrop-filter: blur(12px);
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-        position: relative;
-        overflow: hidden;
-        flex-shrink: 0;
-      }
-
-      .left-panel__privacy-notice::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, #22c55e, #3b82f6, #22c55e);
-        opacity: 0.7;
-      }
-
-      .left-panel__privacy-text {
-        font-size: 11px;
-        font-weight: 600;
-        color: #f0f9ff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-        letter-spacing: 0.2px;
-      }
-
+      /* Shortcut Display */
       .left-panel__shortcut-info {
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 10px;
-        padding: 12px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 12px;
+        padding: 16px 20px;
         text-align: center;
-        backdrop-filter: blur(10px);
         flex-shrink: 0;
-        position: relative;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 260px;
+        margin: auto 0;
       }
 
       .left-panel__shortcut-description {
         font-size: 10px;
-        color: #888;
-        margin-bottom: 6px;
-        line-height: 1.3;
+        color: #78716c;
+        margin-bottom: 10px;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        font-weight: 500;
+        letter-spacing: 0.8px;
+        font-weight: 600;
       }
 
       .left-panel__shortcut-keys {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        background: rgba(20, 20, 20, 0.9);
-        padding: 8px 14px;
-        border-radius: 8px;
-        font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
-        font-size: 11px;
-        color: #ffffff;
-        font-weight: 600;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
       }
 
       .left-panel__shortcut-keys kbd {
-        background: linear-gradient(180deg, #404040 0%, #2a2a2a 100%);
-        padding: 4px 8px;
-        border-radius: 4px;
-        border: 1px solid #555;
-        font-size: 11px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-        color: #f0f0f0;
-        min-width: 24px;
+        background: linear-gradient(180deg, #292524 0%, #1c1917 100%);
+        padding: 5px 9px;
+        border-radius: 5px;
+        border: 1px solid #44403c;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 600;
+        box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        color: #d6d3d1;
+        min-width: 28px;
         text-align: center;
       }
 
       .left-panel__shortcut-keys span {
-        color: #555;
-        font-weight: 400;
-        font-size: 10px;
+        color: #57534e;
+        font-size: 11px;
       }
 
+      /* Shortcut Warning */
       .left-panel__shortcut-warning {
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
-        border: 1px solid rgba(239, 68, 68, 0.35);
-        border-radius: 10px;
-        padding: 10px;
+        background: rgba(239, 68, 68, 0.06);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: 12px;
+        padding: 14px 16px;
         text-align: center;
-        backdrop-filter: blur(10px);
         flex-shrink: 0;
-        box-shadow: 0 2px 10px rgba(239, 68, 68, 0.1);
-      }
-
-      #warning-shortcut {
-        margin: 12px 0;
+        width: 100%;
+        max-width: 260px;
+        margin: auto 0;
       }
 
       .left-panel__warning-icon {
-        font-size: 20px;
-        margin-bottom: 2px;
+        font-size: 18px;
+        margin-bottom: 4px;
       }
 
       .left-panel__warning-title {
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 600;
         color: #ef4444;
         margin-bottom: 4px;
       }
 
       .left-panel__warning-description {
-        color: #999;
+        color: #a8a29e;
         font-size: 11px;
-        line-height: 1.3;
-        margin-bottom: 8px;
+        line-height: 1.4;
+        margin-bottom: 10px;
       }
 
       .left-panel__warning-description strong {
@@ -615,38 +160,421 @@
       }
 
       .left-panel__warning-description kbd {
-        background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%);
+        background: linear-gradient(180deg, #292524 0%, #1c1917 100%);
         padding: 2px 5px;
         border-radius: 3px;
-        border: 1px solid #4a4a4a;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-        color: #e0e0e0;
-        font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
+        border: 1px solid #44403c;
+        font-family: inherit;
         font-size: 10px;
+        color: #d6d3d1;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      }
+
+      #warning-shortcut {
+        margin: 10px 0;
       }
 
       .left-panel__warning-btn {
-        background: rgba(239, 68, 68, 0.15);
+        background: rgba(239, 68, 68, 0.12);
         color: #ef4444;
-        border: 1px solid rgba(239, 68, 68, 0.35);
+        border: 1px solid rgba(239, 68, 68, 0.25);
         padding: 6px 14px;
         border-radius: 6px;
         cursor: pointer;
         font-weight: 500;
         font-size: 11px;
-        transition: all 0.2s ease;
+        font-family: inherit;
+        transition: all 0.15s ease;
       }
 
       .left-panel__warning-btn:hover {
-        background: rgba(239, 68, 68, 0.25);
-        border-color: rgba(239, 68, 68, 0.5);
-        transform: translateY(-1px);
-        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
+        background: rgba(239, 68, 68, 0.2);
       }
 
-      .left-panel__warning-btn:active {
-        transform: translateY(0);
+      /* Open Button */
+      .left-panel__open-btn {
+        background: none;
+        border: none;
+        color: #57534e;
+        font-size: 11px;
+        cursor: pointer;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        font-family: inherit;
+        padding: 6px;
+        transition: color 0.15s;
       }
+
+      .left-panel__open-btn:hover {
+        color: #a8a29e;
+      }
+
+      /* Privacy Notice */
+      .left-panel__privacy-notice {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.08) 0%, rgba(45, 212, 110, 0.04) 100%);
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        border-radius: 10px;
+        padding: 10px 14px;
+        text-align: center;
+        flex-shrink: 0;
+        width: 100%;
+        max-width: 260px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .left-panel__privacy-notice::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.4), transparent);
+      }
+
+      .left-panel__privacy-text {
+        font-size: 11px;
+        font-weight: 500;
+        color: #d6d3d1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        letter-spacing: 0.1px;
+      }
+
+      .left-panel__privacy-text .dot {
+        width: 3px;
+        height: 3px;
+        background: rgba(34, 197, 94, 0.4);
+        border-radius: 50%;
+        display: inline-block;
+      }
+
+      /* Footer */
+      .left-panel__footer {
+        margin-top: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+        width: 100%;
+        max-width: 260px;
+      }
+
+      .left-panel__link-buttons {
+        display: flex;
+        gap: 8px;
+        width: 100%;
+      }
+
+      .left-panel__link-btn {
+        flex: 1;
+        color: #78716c;
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 500;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        transition: all 0.15s ease;
+      }
+
+      .left-panel__link-btn:hover {
+        color: #d6d3d1;
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.12);
+      }
+
+      .left-panel__link-icon {
+        font-size: 12px;
+      }
+
+      .left-panel__credits {
+        text-align: center;
+      }
+
+      .left-panel__credits-link {
+        color: #44403c;
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 400;
+        transition: color 0.15s;
+      }
+
+      .left-panel__credits-link:hover {
+        color: #78716c;
+      }
+
+      /* ── Right Panel ── */
+      .right-panel {
+        width: 300px;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+
+      .settings-section {
+        flex: 1;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.025);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .settings-header {
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        flex-shrink: 0;
+      }
+
+      .settings-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #e7e5e4;
+      }
+
+      .settings-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        overflow-y: auto;
+        padding: 16px;
+        min-height: 0;
+      }
+
+      /* Toggle */
+
+
+      .setting-group-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: #a8a29e;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+
+      .toggle-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        gap: 10px;
+      }
+
+      .toggle-row__text {
+        font-size: 12px;
+        color: #d6d3d1;
+      }
+
+      .toggle-row input[type="checkbox"] {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+        width: 0;
+        height: 0;
+      }
+
+      .toggle-switch {
+        position: relative;
+        width: 36px;
+        height: 20px;
+        flex-shrink: 0;
+      }
+
+      .toggle-track {
+        position: absolute;
+        inset: 0;
+        background: #292524;
+        border-radius: 10px;
+        border: 1px solid #44403c;
+        transition: all 0.2s;
+      }
+
+      .toggle-track::before {
+        content: "";
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 14px;
+        height: 14px;
+        background: #78716c;
+        border-radius: 50%;
+        transition: all 0.2s;
+      }
+
+      .toggle-row input:checked ~ .toggle-switch .toggle-track {
+        background: rgba(34, 197, 94, 0.15);
+        border-color: rgba(34, 197, 94, 0.35);
+      }
+
+      .toggle-row input:checked ~ .toggle-switch .toggle-track::before {
+        transform: translateX(16px);
+        background: #22c55e;
+      }
+
+      .settings-hint {
+        font-size: 10px;
+        color: #78716c;
+        margin-top: 6px;
+      }
+
+      /* AI Providers */
+
+
+      .ai-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+      }
+
+      .ai-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+        font-size: 11px;
+        color: #a8a29e;
+        cursor: pointer;
+        padding: 8px 6px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.025);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        transition: all 0.15s;
+      }
+
+      .ai-item:hover {
+        background: rgba(255, 255, 255, 0.04);
+        color: #d6d3d1;
+      }
+
+      .ai-item input[type="checkbox"] {
+        display: none;
+      }
+
+      .ai-item:has(input:checked) {
+        background: rgba(34, 197, 94, 0.1);
+        border-color: rgba(34, 197, 94, 0.3);
+        color: #e7e5e4;
+      }
+
+      /* Prompt Templates */
+
+
+      .prompt-input-group {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 10px;
+      }
+
+      .prompt-input {
+        flex: 1;
+        padding: 7px 10px;
+        background: #1a1918;
+        border: 1px solid #292524;
+        border-radius: 6px;
+        color: #e7e5e4;
+        font-size: 11px;
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+
+      .prompt-input:focus {
+        border-color: #44403c;
+      }
+
+      .prompt-input::placeholder {
+        color: #78716c;
+      }
+
+      .prompt-add-btn {
+        padding: 7px 12px;
+        background: #1c1917;
+        border: 1px solid #292524;
+        border-radius: 6px;
+        color: #a8a29e;
+        font-size: 11px;
+        font-weight: 500;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+      }
+
+      .prompt-add-btn:hover {
+        background: #292524;
+        color: #e7e5e4;
+      }
+
+      .prompt-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        max-height: 120px;
+        overflow-y: auto;
+      }
+
+      .prompt-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        background: rgba(255, 255, 255, 0.025);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 6px;
+        font-size: 11px;
+        color: #d6d3d1;
+        transition: all 0.15s;
+      }
+
+      .prompt-item:hover {
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .prompt-item-text {
+        flex: 1;
+        cursor: pointer;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .prompt-item-text:hover {
+        color: #e7e5e4;
+      }
+
+      .prompt-delete-btn {
+        color: #78716c;
+        cursor: pointer;
+        padding: 2px;
+        border-radius: 3px;
+        font-size: 14px;
+        flex-shrink: 0;
+        line-height: 1;
+        transition: all 0.15s;
+      }
+
+      .prompt-delete-btn:hover {
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.1);
+      }
+
+      /* Links reset */
+      a { color: inherit; text-decoration: none; }
+      a:visited, a:active { color: inherit; }
     </style>
   </head>
   <body>
@@ -680,7 +608,9 @@
         <button id="open-sidebar" class="left-panel__open-btn">or click here to open it</button>
 
         <div class="left-panel__privacy-notice">
-          <p class="left-panel__privacy-text">Open source • No servers • Zero data collection</p>
+          <p class="left-panel__privacy-text">
+            Open source <span class="dot"></span> No servers <span class="dot"></span> Zero data collection
+          </p>
         </div>
 
         <div class="left-panel__footer">
@@ -703,23 +633,33 @@
 
       <div class="right-panel">
         <div class="settings-section">
-          <h2 class="settings-title">Preferences</h2>
+          <div class="settings-header">
+            <h2 class="settings-title">Preferences</h2>
+          </div>
 
           <div class="settings-content">
-            <label class="toggle-row">
-              <input type="checkbox" id="toggle-selection-button" checked />
-              <span>Show floating selection button</span>
-            </label>
-            <p class="settings-hint">Changes take effect after refreshing the current page.</p>
+            <!-- Toggle -->
+            <div class="setting-group">
+              <label class="toggle-row">
+                <span class="toggle-row__text">Show floating selection button</span>
+                <input type="checkbox" id="toggle-selection-button" checked />
+                <div class="toggle-switch">
+                  <div class="toggle-track"></div>
+                </div>
+              </label>
+              <p class="settings-hint">Changes take effect after refreshing the current page.</p>
+            </div>
 
-            <div class="ai-settings">
-              <p class="ai-settings-title">Visible AI providers</p>
+            <!-- AI Providers -->
+            <div class="setting-group ai-settings">
+              <p class="setting-group-label">Visible AI providers</p>
               <div id="ai-list" class="ai-list"></div>
               <p class="settings-hint">Changes take effect after reopening the side panel.</p>
             </div>
 
-            <div class="prompt-templates">
-              <p class="prompt-templates-title">Custom prompt templates</p>
+            <!-- Prompts -->
+            <div class="setting-group prompt-templates">
+              <p class="setting-group-label">Custom prompt templates</p>
               <div class="prompt-input-group">
                 <input type="text" id="new-prompt-input" class="prompt-input" placeholder="Add a custom prompt..." />
                 <button id="add-prompt-btn" class="prompt-add-btn">Add</button>
