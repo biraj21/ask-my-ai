@@ -1,11 +1,11 @@
-import { ContextMenu, MessageAction, MESSAGE_RETRY_CONFIG, type ContextMenuValue } from "./constants";
+import { ContextMenu, MessageAction, MESSAGE_RETRY_CONFIG, type ContextMenuValue, EXT_NAME } from "./constants";
 import { logger } from "./logger";
 import type { SelectionInfo, SelectionInfoSavedMessage } from "./types";
 import { ExtStorage } from "./storage";
 
 const contextMenuTitleWithSelectedAi = async () => {
   const selectedAI = await ExtStorage.local.getSelectedAI();
-  return selectedAI ? `Ask my AI (${selectedAI})` : "Ask my AI";
+  return selectedAI ? `${EXT_NAME} (${selectedAI})` : EXT_NAME;
 };
 
 // Function to update context menu text
@@ -254,7 +254,7 @@ async function sendTextToSidePanel(
   text: string,
   tab: chrome.tabs.Tab,
   formatType: ContextMenuValue,
-  customPrompt?: string
+  customPrompt?: string,
 ) {
   const selectionInfo: SelectionInfo = {
     text: formatSelectionText(text, tab, formatType, customPrompt),

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -7,10 +7,7 @@
     <title>ask-my-ai</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <style>
       * {
         margin: 0;
@@ -23,17 +20,31 @@
         height: 480px;
         background: linear-gradient(160deg, #171717 0%, #0f0f0f 100%);
         color: #e7e5e4;
-        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
         padding: 20px;
         overflow: hidden;
         -webkit-font-smoothing: antialiased;
       }
 
       /* Scrollbar */
-      ::-webkit-scrollbar { width: 4px; }
-      ::-webkit-scrollbar-track { background: transparent; }
-      ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
-      ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+      ::-webkit-scrollbar {
+        width: 4px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
 
       .main-layout {
         display: flex;
@@ -111,7 +122,9 @@
         font-family: inherit;
         font-size: 12px;
         font-weight: 600;
-        box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        box-shadow:
+          0 2px 3px rgba(0, 0, 0, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.06);
         color: #d6d3d1;
         min-width: 28px;
         text-align: center;
@@ -356,7 +369,6 @@
 
       /* Toggle */
 
-
       .setting-group-label {
         font-size: 10px;
         text-transform: uppercase;
@@ -433,7 +445,6 @@
 
       /* AI Providers */
 
-
       .ai-list {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -471,7 +482,6 @@
       }
 
       /* Prompt Templates */
-
 
       .prompt-input-group {
         display: flex;
@@ -573,15 +583,21 @@
       }
 
       /* Links reset */
-      a { color: inherit; text-decoration: none; }
-      a:visited, a:active { color: inherit; }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      a:visited,
+      a:active {
+        color: inherit;
+      }
     </style>
   </head>
   <body>
     <div class="main-layout">
       <div class="left-panel">
         <div class="left-panel__header">
-          <h1 class="left-panel__title">Ask my AI</h1>
+          <h1 class="left-panel__title">AI Anywhere (Ask my AI)</h1>
           <p class="left-panel__subtitle"><u>Your</u> AI assistant, always ready</p>
         </div>
 

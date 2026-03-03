@@ -1,4 +1,4 @@
-# Ask My AI
+# AI Anywhere (formerly `Ask My AI`)
 
 A Chrome extension that lets you instantly send selected text to your favorite AI for explanation with just a right-click.
 
@@ -6,14 +6,14 @@ A Chrome extension that lets you instantly send selected text to your favorite A
 
 ## What it does
 
-- **Right-click any text** → Select "Ask My AI" from context menu
+- **Right-click any text** → Select " AI Anywhere" from context menu
 - **Automatically opens sidebar** with your preferred AI (ChatGPT, Claude, Gemini, etc.)
 - **Instantly sends your selected text** with context for explanation
 - **No copy-pasting needed** - streamlines your workflow
 
 Perfect for quickly understanding complex concepts, code snippets, technical terms, or any text you encounter while browsing.
 
-## Why Use Ask My AI?
+## Why Use AI Anywhere?
 
 **Uses YOUR existing AI accounts** - no separate login or payment needed:
 
@@ -45,7 +45,7 @@ Perfect for quickly understanding complex concepts, code snippets, technical ter
 
 1. **Select any text** on a webpage
 2. **Right-click** to open context menu
-3. **Click "Ask My AI"**
+3. **Click "AI Anywhere"**
 4. **Sidebar opens** with your AI ready to explain the selected text
 5. **Get instant explanations** without leaving your current page
 

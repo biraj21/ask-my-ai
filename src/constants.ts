@@ -31,11 +31,6 @@ export const AI_WEBSITES: Record<AiType, AiConfig> = {
     url: "https://scira.ai/",
     icon: `${ICON_BASE_PATH}/scira.svg`,
   },
-  grok: {
-    label: "Grok",
-    url: "https://grok.com/",
-    icon: `${ICON_BASE_PATH}/grok.svg`,
-  },
   deepseek: {
     label: "Deepseek",
     url: "https://chat.deepseek.com/",
@@ -50,6 +45,22 @@ export const AI_WEBSITES: Record<AiType, AiConfig> = {
     label: "Google",
     url: "https://google.com/",
     icon: `${ICON_BASE_PATH}/google-color.svg`,
+  },
+  qwen: {
+    label: "Qwen",
+    url: "https://chat.qwen.ai/",
+    icon: `${ICON_BASE_PATH}/qwen-color.svg`,
+  },
+  kimi: {
+    label: "Kimi",
+    url: "https://www.kimi.com/",
+    icon: `${ICON_BASE_PATH}/kimi-color.svg`,
+  },
+
+  grok: {
+    label: "Grok",
+    url: "https://grok.com/",
+    icon: `${ICON_BASE_PATH}/grok.svg`,
   },
   mistral: {
     label: "Mistral Le Chat",
@@ -120,7 +131,7 @@ export const MessageAction = {
   SHOW_TOAST: "SHOW_TOAST",
 } as const;
 
-export const EXT_NAME = "Ask my AI";
+export const EXT_NAME = "AI Anywhere";
 
 // Retry configuration for sending messages to side panel
 export const MESSAGE_RETRY_CONFIG = {

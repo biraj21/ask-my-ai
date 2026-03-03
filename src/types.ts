@@ -10,7 +10,9 @@ export type AiType =
   | "mistral"
   | "perplexity"
   | "aistudio"
-  | "grok";
+  | "grok"
+  | "qwen"
+  | "kimi";
 export type AiConfig = {
   label: string;
   url: string;
