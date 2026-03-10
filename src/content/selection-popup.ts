@@ -7,6 +7,18 @@ const SELECTION_DEBOUNCE_MS = 50;
 const MENU_HIDE_DELAY_MS = 200;
 const MENU_ANIMATION_DELAY_MS = 200;
 const SCROLL_HIDE_THRESHOLD = 150;
+const BUTTON_AUTO_HIDE_MS = 3000;
+const MIN_WORD_COUNT = 2;
+
+// Validate selection meets minimum word count
+function isValidWordCount(text: string): boolean {
+  const words = text
+    .trim()
+    .split(/\s+/)
+    .filter((word) => word.length > 0);
+
+  return words.length >= MIN_WORD_COUNT;
+}
 
 // Hide menu
 function hideMenu(menu: HTMLElement, clearSavedText?: () => void) {
@@ -19,7 +31,7 @@ function hideMenu(menu: HTMLElement, clearSavedText?: () => void) {
 
 // Position the button near the cursor position with smart edge detection
 function positionButton(button: HTMLElement, mouseX: number, mouseY: number) {
-  const offset = 5;
+  const offset = 20;
   const edgeMargin = 20;
 
   const viewportTop = window.scrollY + edgeMargin;
@@ -75,7 +87,7 @@ function hideButton(button: HTMLElement, menu?: HTMLElement | null, clearSavedTe
   }
 }
 
-// Check if the selection is valid (not empty, not in an input field)
+// Check if the selection is valid (not empty, not in an input field, minimum word count)
 function isValidSelection(selection: Selection | null): boolean {
   if (sessionStorage.getItem(SESSION_STORAGE_KEYS.IN_SIDE_PANEL)) {
     logger.debug("IN_SIDE_PANEL is true, skipping selection popup");
@@ -83,6 +95,12 @@ function isValidSelection(selection: Selection | null): boolean {
   }
 
   if (!selection || selection.isCollapsed || !selection.toString().trim()) {
+    return false;
+  }
+
+  // Check minimum word count
+  const selectedText = selection.toString().trim();
+  if (!isValidWordCount(selectedText)) {
     return false;
   }
 
@@ -123,7 +141,7 @@ function handleExtensionError(error: unknown): void {
 async function sendSelectionToSidePanel(
   text: string,
   formatType: ContextMenuValue = ContextMenu.AskMyAi,
-  customPrompt?: string
+  customPrompt?: string,
 ): Promise<void> {
   if (!chrome.runtime?.id) {
     logger.error("Extension context invalidated. Please refresh the page.");
@@ -184,10 +202,13 @@ async function init() {
   let selectionMenu: HTMLDivElement | null = null;
   let selectionTimeout: number | null = null;
   let menuTimeout: number | null = null;
+  let autoHideTimeout: number | null = null;
   let lastMouseX = 0;
   let lastMouseY = 0;
   let savedSelectedText = "";
   let buttonScrollY = 0;
+  let isHoveringButtonOrMenu = false;
+  let isMenuOpen = false;
 
   // Helper: Clear selection timeout
   const clearSelectionTimeout = () => {
@@ -216,9 +237,28 @@ async function init() {
     savedSelectedText = "";
   };
 
+  // Helper: Clear auto-hide timeout
+  const clearAutoHideTimeout = () => {
+    if (autoHideTimeout) {
+      clearTimeout(autoHideTimeout);
+      autoHideTimeout = null;
+    }
+  };
+
+  // Helper: Start auto-hide timeout
+  const startAutoHideTimeout = () => {
+    clearAutoHideTimeout();
+    autoHideTimeout = window.setTimeout(() => {
+      if (!isHoveringButtonOrMenu && !isMenuOpen) {
+        hideButton(askButton, selectionMenu, clearSavedText);
+      }
+    }, BUTTON_AUTO_HIDE_MS);
+  };
+
   // Helper: Handle selection change
   const handleSelectionChange = (positionX?: number, positionY?: number) => {
     clearSelectionTimeout();
+    clearAutoHideTimeout();
 
     selectionTimeout = window.setTimeout(() => {
       const selection = window.getSelection();
@@ -233,6 +273,8 @@ async function init() {
           positionButton(askButton, window.scrollX + rect.right, window.scrollY + rect.bottom);
         }
         buttonScrollY = window.scrollY;
+        isMenuOpen = false;
+        startAutoHideTimeout();
       } else {
         hideButton(askButton, selectionMenu, clearSavedText);
       }
@@ -270,6 +312,16 @@ async function init() {
     handleSelectionChange();
   });
 
+  // Handle copy action to hide button
+  document.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "c") {
+      if (askButton.style.display !== "none") {
+        hideButton(askButton, selectionMenu, clearSavedText);
+        clearAutoHideTimeout();
+      }
+    }
+  });
+
   // Handle Escape key to close popup and menu
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
@@ -284,6 +336,7 @@ async function init() {
     }
 
     clearSelectionTimeout();
+    clearAutoHideTimeout();
 
     setTimeout(() => {
       const selection = window.getSelection();
@@ -306,6 +359,9 @@ async function init() {
 
   // Show menu on button hover
   askButton.addEventListener("mouseenter", () => {
+    isHoveringButtonOrMenu = true;
+    clearAutoHideTimeout();
+
     if (menuTimeout) {
       clearTimeout(menuTimeout);
     }
@@ -318,6 +374,7 @@ async function init() {
     }
 
     if (selectionMenu) {
+      isMenuOpen = true;
       positionMenu(selectionMenu, askButton);
     }
   });
@@ -330,6 +387,8 @@ async function init() {
 
     // Keep menu open when hovering over it
     selectionMenu.addEventListener("mouseenter", () => {
+      isHoveringButtonOrMenu = true;
+      clearAutoHideTimeout();
       if (menuTimeout) {
         clearTimeout(menuTimeout);
       }
@@ -342,11 +401,17 @@ async function init() {
 
     // Hide menu when mouse leaves both button and menu
     const handleMouseLeave = () => {
+      isHoveringButtonOrMenu = false;
+
       menuTimeout = window.setTimeout(() => {
-        if (selectionMenu) {
+        if (selectionMenu && isMenuOpen) {
           hideMenu(selectionMenu, clearSavedText);
+          isMenuOpen = false;
         }
       }, MENU_HIDE_DELAY_MS);
+
+      // Start auto-hide timer for the button
+      startAutoHideTimeout();
     };
 
     askButton.addEventListener("mouseleave", handleMouseLeave);
@@ -368,9 +433,11 @@ async function init() {
         const action = (item as HTMLElement).getAttribute("data-action") as ContextMenuValue;
 
         if (savedSelectedText) {
+          isMenuOpen = false;
           await sendSelectionToSidePanel(savedSelectedText, action);
           hideButton(askButton, selectionMenu);
           clearSavedText();
+          clearAutoHideTimeout();
         } else {
           logger.warn("No saved selection found when menu item clicked");
         }
@@ -386,29 +453,31 @@ async function init() {
       try {
         const { promptTemplates } = await chrome.storage.local.get("promptTemplates");
         const templates = Array.isArray(promptTemplates) ? promptTemplates : [];
-        
+
         if (templates.length > 0 && templateList) {
           templateList.innerHTML = "";
           templateList.style.display = "flex";
-          
+
           templates.forEach((template) => {
             const templateItem = document.createElement("div");
             templateItem.className = "template-item";
             templateItem.textContent = template;
             templateItem.title = template;
-            
+
             templateItem.addEventListener("click", async (e) => {
               e.preventDefault();
               e.stopPropagation();
-              
+
               if (savedSelectedText) {
+                isMenuOpen = false;
                 await sendSelectionToSidePanel(savedSelectedText, ContextMenu.AskMyAi, template);
                 hideButton(askButton, selectionMenu);
                 customInput.value = "";
                 clearSavedText();
+                clearAutoHideTimeout();
               }
             });
-            
+
             templateList.appendChild(templateItem);
           });
         } else if (templateList) {
@@ -433,10 +502,12 @@ async function init() {
         const customPrompt = customInput.value.trim();
 
         if (savedSelectedText && customPrompt) {
+          isMenuOpen = false;
           await sendSelectionToSidePanel(savedSelectedText, ContextMenu.AskMyAi, customPrompt);
           hideButton(askButton, selectionMenu);
           customInput.value = "";
           clearSavedText();
+          clearAutoHideTimeout();
         }
       }
     });
@@ -455,9 +526,11 @@ async function init() {
     const textToSend = savedSelectedText || getSelectedText();
 
     if (textToSend) {
+      isMenuOpen = false;
       await sendSelectionToSidePanel(textToSend);
       hideButton(askButton, selectionMenu);
       clearSavedText();
+      clearAutoHideTimeout();
     } else {
       logger.warn("No valid selection found when button was clicked");
     }
@@ -470,11 +543,12 @@ async function init() {
       if (askButton.style.display !== "none") {
         const scrollDelta = Math.abs(window.scrollY - buttonScrollY);
         if (scrollDelta > SCROLL_HIDE_THRESHOLD) {
+          clearAutoHideTimeout();
           hideButton(askButton, selectionMenu, clearSavedText);
         }
       }
     },
-    true
+    true,
   );
 }
 

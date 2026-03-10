@@ -164,13 +164,22 @@ async function initSettings() {
 
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
+      checkbox.className = "ai-item__checkbox";
       checkbox.checked = enabledAIs!.includes(key as any);
 
-      const span = document.createElement("span");
-      span.textContent = AI_WEBSITES[key].label;
+      const nameSpan = document.createElement("span");
+      nameSpan.className = "ai-item__name";
+      nameSpan.textContent = AI_WEBSITES[key].label;
 
+      const updateItemState = () => {
+        const isEnabled = checkbox.checked;
+        item.dataset.enabled = String(isEnabled);
+      };
+
+      updateItemState();
+
+      item.appendChild(nameSpan);
       item.appendChild(checkbox);
-      item.appendChild(span);
 
       checkbox.addEventListener("change", async () => {
         const currentlyEnabled = new Set(enabledAIs);
@@ -181,12 +190,14 @@ async function initSettings() {
           // Prevent disabling all providers – keep at least one
           if (currentlyEnabled.size <= 1) {
             checkbox.checked = true;
+            updateItemState();
             return;
           }
           currentlyEnabled.delete(key as any);
         }
 
         enabledAIs = Array.from(currentlyEnabled) as any;
+        updateItemState();
         await ExtStorage.local.setEnabledAIs(enabledAIs as any);
       });
 

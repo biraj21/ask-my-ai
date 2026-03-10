@@ -20,9 +20,8 @@ export function createAskButton(): HTMLDivElement {
       }
       
       .button-wrapper {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 10px;
-        padding: 2px;
+        border: 1px solid #667eea;
+        border-radius: 6px;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         box-shadow: 
           0 2px 8px rgba(0, 0, 0, 0.15),
@@ -62,7 +61,6 @@ export function createAskButton(): HTMLDivElement {
       
       img {
         display: block;
-        border-radius: 6px;
         width: 28px;
         height: 28px;
         position: relative;

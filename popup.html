@@ -9,6 +9,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <style>
+      :root {
+        --primary-color: #ff6b6b;
+        --secondary-color: #4ecdc4;
+        --text-color: #2c3e50;
+        --background-color: #ffffdf;
+        --sun-color: #ffe66d;
+        --cloud-color: #ffffff;
+      }
+
       * {
         margin: 0;
         padding: 0;
@@ -17,9 +26,9 @@
 
       body {
         width: 640px;
-        height: 480px;
-        background: linear-gradient(160deg, #171717 0%, #0f0f0f 100%);
-        color: #e7e5e4;
+        height: 540px;
+        background: linear-gradient(160deg, var(--background-color) 0%, #fff8c5 100%);
+        color: var(--text-color);
         font-family:
           "Inter",
           -apple-system,
@@ -39,11 +48,11 @@
         background: transparent;
       }
       ::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(44, 62, 80, 0.18);
         border-radius: 4px;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(44, 62, 80, 0.28);
       }
 
       .main-layout {
@@ -72,24 +81,24 @@
         font-size: 24px;
         font-weight: 700;
         letter-spacing: -0.6px;
-        color: #fafaf9;
+        color: var(--text-color);
         margin-bottom: 4px;
       }
 
       .left-panel__subtitle {
         font-size: 12px;
-        color: #78716c;
+        color: rgba(44, 62, 80, 0.72);
         font-weight: 400;
       }
 
       .left-panel__subtitle u {
-        text-decoration-color: #57534e;
+        text-decoration-color: var(--primary-color);
       }
 
       /* Shortcut Display */
       .left-panel__shortcut-info {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.07);
+        background: rgba(255, 255, 255, 0.7);
+        border: 1px solid rgba(78, 205, 196, 0.35);
         border-radius: 12px;
         padding: 16px 20px;
         text-align: center;
@@ -101,7 +110,7 @@
 
       .left-panel__shortcut-description {
         font-size: 10px;
-        color: #78716c;
+        color: rgba(44, 62, 80, 0.65);
         margin-bottom: 10px;
         text-transform: uppercase;
         letter-spacing: 0.8px;
@@ -115,30 +124,30 @@
       }
 
       .left-panel__shortcut-keys kbd {
-        background: linear-gradient(180deg, #292524 0%, #1c1917 100%);
+        background: linear-gradient(180deg, #fffdf0 0%, #fff6bf 100%);
         padding: 5px 9px;
         border-radius: 5px;
-        border: 1px solid #44403c;
+        border: 1px solid rgba(255, 230, 109, 0.9);
         font-family: inherit;
         font-size: 12px;
         font-weight: 600;
         box-shadow:
-          0 2px 3px rgba(0, 0, 0, 0.3),
-          inset 0 1px 0 rgba(255, 255, 255, 0.06);
-        color: #d6d3d1;
+          0 2px 3px rgba(44, 62, 80, 0.12),
+          inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        color: var(--text-color);
         min-width: 28px;
         text-align: center;
       }
 
       .left-panel__shortcut-keys span {
-        color: #57534e;
+        color: var(--primary-color);
         font-size: 11px;
       }
 
       /* Shortcut Warning */
       .left-panel__shortcut-warning {
-        background: rgba(239, 68, 68, 0.06);
-        border: 1px solid rgba(239, 68, 68, 0.2);
+        background: rgba(255, 107, 107, 0.1);
+        border: 1px solid rgba(255, 107, 107, 0.35);
         border-radius: 12px;
         padding: 14px 16px;
         text-align: center;
@@ -156,31 +165,31 @@
       .left-panel__warning-title {
         font-size: 12px;
         font-weight: 600;
-        color: #ef4444;
+        color: var(--primary-color);
         margin-bottom: 4px;
       }
 
       .left-panel__warning-description {
-        color: #a8a29e;
+        color: rgba(44, 62, 80, 0.82);
         font-size: 11px;
         line-height: 1.4;
         margin-bottom: 10px;
       }
 
       .left-panel__warning-description strong {
-        color: #ef4444;
+        color: var(--primary-color);
         font-weight: 600;
       }
 
       .left-panel__warning-description kbd {
-        background: linear-gradient(180deg, #292524 0%, #1c1917 100%);
+        background: linear-gradient(180deg, #fffdf0 0%, #fff6bf 100%);
         padding: 2px 5px;
         border-radius: 3px;
-        border: 1px solid #44403c;
+        border: 1px solid rgba(255, 230, 109, 0.9);
         font-family: inherit;
         font-size: 10px;
-        color: #d6d3d1;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        color: var(--text-color);
+        box-shadow: 0 1px 2px rgba(44, 62, 80, 0.12);
       }
 
       #warning-shortcut {
@@ -188,9 +197,9 @@
       }
 
       .left-panel__warning-btn {
-        background: rgba(239, 68, 68, 0.12);
-        color: #ef4444;
-        border: 1px solid rgba(239, 68, 68, 0.25);
+        background: rgba(255, 107, 107, 0.2);
+        color: var(--primary-color);
+        border: 1px solid rgba(255, 107, 107, 0.38);
         padding: 6px 14px;
         border-radius: 6px;
         cursor: pointer;
@@ -201,14 +210,15 @@
       }
 
       .left-panel__warning-btn:hover {
-        background: rgba(239, 68, 68, 0.2);
+        background: rgba(255, 107, 107, 0.3);
       }
 
       /* Open Button */
       .left-panel__open-btn {
         background: none;
         border: none;
-        color: #57534e;
+        color: rgba(44, 62, 80, 0.72);
+        margin-top: 8px;
         font-size: 11px;
         cursor: pointer;
         text-decoration: underline;
@@ -219,13 +229,13 @@
       }
 
       .left-panel__open-btn:hover {
-        color: #a8a29e;
+        color: var(--primary-color);
       }
 
       /* Privacy Notice */
       .left-panel__privacy-notice {
-        background: linear-gradient(135deg, rgba(34, 197, 94, 0.08) 0%, rgba(45, 212, 110, 0.04) 100%);
-        border: 1px solid rgba(34, 197, 94, 0.2);
+        background: linear-gradient(135deg, rgba(78, 205, 196, 0.16) 0%, rgba(255, 255, 255, 0.72) 100%);
+        border: 1px solid rgba(78, 205, 196, 0.35);
         border-radius: 10px;
         padding: 10px 14px;
         text-align: center;
@@ -243,13 +253,13 @@
         left: 0;
         right: 0;
         height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.4), transparent);
+        background: linear-gradient(90deg, transparent, rgba(78, 205, 196, 0.6), transparent);
       }
 
       .left-panel__privacy-text {
         font-size: 11px;
         font-weight: 500;
-        color: #d6d3d1;
+        color: var(--text-color);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -260,7 +270,7 @@
       .left-panel__privacy-text .dot {
         width: 3px;
         height: 3px;
-        background: rgba(34, 197, 94, 0.4);
+        background: rgba(78, 205, 196, 0.7);
         border-radius: 50%;
         display: inline-block;
       }
@@ -285,7 +295,7 @@
 
       .left-panel__link-btn {
         flex: 1;
-        color: #78716c;
+        color: rgba(44, 62, 80, 0.72);
         text-decoration: none;
         font-size: 11px;
         font-weight: 500;
@@ -296,15 +306,15 @@
         gap: 6px;
         padding: 8px;
         border-radius: 8px;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.07);
+        background: rgba(255, 255, 255, 0.66);
+        border: 1px solid rgba(78, 205, 196, 0.28);
         transition: all 0.15s ease;
       }
 
       .left-panel__link-btn:hover {
-        color: #d6d3d1;
-        background: rgba(255, 255, 255, 0.06);
-        border-color: rgba(255, 255, 255, 0.12);
+        color: var(--text-color);
+        background: rgba(255, 255, 255, 0.9);
+        border-color: rgba(78, 205, 196, 0.45);
       }
 
       .left-panel__link-icon {
@@ -316,7 +326,7 @@
       }
 
       .left-panel__credits-link {
-        color: #44403c;
+        color: rgba(44, 62, 80, 0.62);
         text-decoration: none;
         font-size: 11px;
         font-weight: 400;
@@ -324,7 +334,7 @@
       }
 
       .left-panel__credits-link:hover {
-        color: #78716c;
+        color: var(--primary-color);
       }
 
       /* ── Right Panel ── */
@@ -338,8 +348,8 @@
       .settings-section {
         flex: 1;
         border-radius: 14px;
-        background: rgba(255, 255, 255, 0.025);
-        border: 1px solid rgba(255, 255, 255, 0.07);
+        background: rgba(255, 255, 255, 0.7);
+        border: 1px solid rgba(78, 205, 196, 0.28);
         display: flex;
         flex-direction: column;
         overflow: hidden;
@@ -347,35 +357,41 @@
 
       .settings-header {
         padding: 14px 16px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        border-bottom: 1px solid rgba(78, 205, 196, 0.28);
         flex-shrink: 0;
       }
 
       .settings-title {
         font-size: 13px;
         font-weight: 600;
-        color: #e7e5e4;
+        color: var(--text-color);
       }
 
       .settings-content {
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 18px;
+        gap: 12px;
         overflow-y: auto;
-        padding: 16px;
+        padding: 14px;
         min-height: 0;
       }
 
       /* Toggle */
+      .setting-group {
+        background: rgba(255, 255, 255, 0.52);
+        border: 1px solid rgba(78, 205, 196, 0.26);
+        border-radius: 10px;
+        padding: 10px 11px;
+      }
 
       .setting-group-label {
         font-size: 10px;
         text-transform: uppercase;
         letter-spacing: 0.6px;
-        color: #a8a29e;
+        color: rgba(44, 62, 80, 0.7);
         font-weight: 600;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
       }
 
       .toggle-row {
@@ -388,7 +404,7 @@
 
       .toggle-row__text {
         font-size: 12px;
-        color: #d6d3d1;
+        color: var(--text-color);
       }
 
       .toggle-row input[type="checkbox"] {
@@ -409,9 +425,9 @@
       .toggle-track {
         position: absolute;
         inset: 0;
-        background: #292524;
+        background: rgba(44, 62, 80, 0.18);
         border-radius: 10px;
-        border: 1px solid #44403c;
+        border: 1px solid rgba(44, 62, 80, 0.24);
         transition: all 0.2s;
       }
 
@@ -422,63 +438,64 @@
         left: 2px;
         width: 14px;
         height: 14px;
-        background: #78716c;
+        background: rgba(44, 62, 80, 0.62);
         border-radius: 50%;
         transition: all 0.2s;
       }
 
       .toggle-row input:checked ~ .toggle-switch .toggle-track {
-        background: rgba(34, 197, 94, 0.15);
-        border-color: rgba(34, 197, 94, 0.35);
+        background: rgba(78, 205, 196, 0.24);
+        border-color: rgba(78, 205, 196, 0.55);
       }
 
       .toggle-row input:checked ~ .toggle-switch .toggle-track::before {
         transform: translateX(16px);
-        background: #22c55e;
+        background: var(--secondary-color);
       }
 
       .settings-hint {
         font-size: 10px;
-        color: #78716c;
-        margin-top: 6px;
+        color: rgba(44, 62, 80, 0.7);
+        margin-top: 8px;
       }
 
       /* AI Providers */
 
       .ai-list {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        display: flex;
+        flex-direction: column;
         gap: 6px;
       }
 
       .ai-item {
         display: flex;
         align-items: center;
-        justify-content: center;
-        gap: 0;
+        justify-content: space-between;
+        gap: 10px;
         font-size: 11px;
-        color: #a8a29e;
+        color: rgba(44, 62, 80, 0.68);
         cursor: pointer;
-        padding: 8px 6px;
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.025);
-        border: 1px solid rgba(255, 255, 255, 0.07);
+        padding: 0;
+        border: 0;
+        background: transparent;
         transition: all 0.15s;
       }
 
       .ai-item:hover {
-        background: rgba(255, 255, 255, 0.04);
-        color: #d6d3d1;
+        color: var(--text-color);
       }
 
-      .ai-item input[type="checkbox"] {
-        display: none;
+      .ai-item__name {
+        font-weight: 500;
+        color: var(--text-color);
+        flex: 1;
       }
 
-      .ai-item:has(input:checked) {
-        background: rgba(34, 197, 94, 0.1);
-        border-color: rgba(34, 197, 94, 0.3);
-        color: #e7e5e4;
+      .ai-item__checkbox {
+        width: 14px;
+        height: 14px;
+        flex-shrink: 0;
+        accent-color: var(--secondary-color);
       }
 
       /* Prompt Templates */
@@ -492,10 +509,10 @@
       .prompt-input {
         flex: 1;
         padding: 7px 10px;
-        background: #1a1918;
-        border: 1px solid #292524;
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(78, 205, 196, 0.35);
         border-radius: 6px;
-        color: #e7e5e4;
+        color: var(--text-color);
         font-size: 11px;
         font-family: inherit;
         outline: none;
@@ -503,19 +520,19 @@
       }
 
       .prompt-input:focus {
-        border-color: #44403c;
+        border-color: var(--secondary-color);
       }
 
       .prompt-input::placeholder {
-        color: #78716c;
+        color: rgba(44, 62, 80, 0.55);
       }
 
       .prompt-add-btn {
         padding: 7px 12px;
-        background: #1c1917;
-        border: 1px solid #292524;
+        background: rgba(255, 230, 109, 0.35);
+        border: 1px solid rgba(255, 230, 109, 0.75);
         border-radius: 6px;
-        color: #a8a29e;
+        color: var(--text-color);
         font-size: 11px;
         font-weight: 500;
         font-family: inherit;
@@ -525,8 +542,8 @@
       }
 
       .prompt-add-btn:hover {
-        background: #292524;
-        color: #e7e5e4;
+        background: rgba(255, 230, 109, 0.6);
+        color: var(--text-color);
       }
 
       .prompt-list {
@@ -542,16 +559,16 @@
         align-items: center;
         gap: 8px;
         padding: 8px 10px;
-        background: rgba(255, 255, 255, 0.025);
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid rgba(78, 205, 196, 0.28);
         border-radius: 6px;
         font-size: 11px;
-        color: #d6d3d1;
+        color: var(--text-color);
         transition: all 0.15s;
       }
 
       .prompt-item:hover {
-        background: rgba(255, 255, 255, 0.04);
+        background: rgba(255, 255, 255, 0.92);
       }
 
       .prompt-item-text {
@@ -563,11 +580,11 @@
       }
 
       .prompt-item-text:hover {
-        color: #e7e5e4;
+        color: var(--primary-color);
       }
 
       .prompt-delete-btn {
-        color: #78716c;
+        color: rgba(44, 62, 80, 0.62);
         cursor: pointer;
         padding: 2px;
         border-radius: 3px;
@@ -578,8 +595,8 @@
       }
 
       .prompt-delete-btn:hover {
-        color: #ef4444;
-        background: rgba(239, 68, 68, 0.1);
+        color: var(--primary-color);
+        background: rgba(255, 107, 107, 0.18);
       }
 
       /* Links reset */
@@ -610,6 +627,7 @@
             <span>+</span>
             <kbd data-key="2">E</kbd>
           </div>
+          <button id="open-sidebar" class="left-panel__open-btn">or click here to open it</button>
         </div>
 
         <div class="left-panel__shortcut-warning" id="shortcut-warning" style="display: none">
@@ -620,8 +638,6 @@
           </p>
           <button id="open-shortcuts-page" class="left-panel__warning-btn">Set Shortcut</button>
         </div>
-
-        <button id="open-sidebar" class="left-panel__open-btn">or click here to open it</button>
 
         <div class="left-panel__privacy-notice">
           <p class="left-panel__privacy-text">
@@ -663,14 +679,14 @@
                   <div class="toggle-track"></div>
                 </div>
               </label>
-              <p class="settings-hint">Changes take effect after refreshing the current page.</p>
+              <p class="settings-hint">Refresh pages to see your changes.</p>
             </div>
 
             <!-- AI Providers -->
             <div class="setting-group ai-settings">
               <p class="setting-group-label">Visible AI providers</p>
+              <p class="settings-hint">Reopening the side panel to view changes.</p>
               <div id="ai-list" class="ai-list"></div>
-              <p class="settings-hint">Changes take effect after reopening the side panel.</p>
             </div>
 
             <!-- Prompts -->
