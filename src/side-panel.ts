@@ -1,4 +1,4 @@
-import { AI_WEBSITES, MessageAction } from "./constants";
+import { AI_WEBSITES, MessageAction, PROMO_LINKS } from "./constants";
 import { logger } from "./logger";
 import type {
   AiType,
@@ -115,7 +115,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Fallback to text
       iconContainer.innerHTML = `<div style="color: white; font-size: 10px; text-align: center;">${value.label.substring(
         0,
-        3
+        3,
       )}</div>`;
     }
 
@@ -134,6 +134,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     aiIconsContainer.appendChild(iconContainer);
   }
+
+  const hangingPieceButton = document.createElement("div");
+  hangingPieceButton.className = "open-tab-btn promo-button";
+  hangingPieceButton.title = "Try Hanging Piece";
+  hangingPieceButton.setAttribute("aria-label", "Try Hanging Piece");
+  hangingPieceButton.innerHTML = '<span aria-hidden="true">♞</span><span class="promo-badge">NEW</span>';
+
+  hangingPieceButton.addEventListener("click", async () => {
+    await chrome.tabs.create({ url: PROMO_LINKS.hangingPieceSidebar });
+  });
+
+  utilityButtonsContainer.appendChild(hangingPieceButton);
 
   // Create "Refresh" button
   const refreshButton = document.createElement("div");

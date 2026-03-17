@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ask-my-ai</title>
+    <title>AI Anywhere</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -273,6 +273,72 @@
         background: rgba(78, 205, 196, 0.7);
         border-radius: 50%;
         display: inline-block;
+      }
+
+      .left-panel__promo-card {
+        width: 100%;
+        max-width: 260px;
+        padding: 14px;
+        border-radius: 14px;
+        background:
+          radial-gradient(circle at top right, rgba(255, 230, 109, 0.95), rgba(255, 230, 109, 0) 38%),
+          linear-gradient(145deg, #243b53 0%, #1b2a41 100%);
+        color: #f7f4e9;
+        border: 1px solid rgba(36, 59, 83);
+        box-shadow: 0 10px 24px rgba(27, 42, 65, 0.18);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        text-align: left;
+      }
+
+      .left-panel__promo-pill {
+        align-self: flex-start;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+      }
+
+      .left-panel__promo-title {
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 1.2;
+        letter-spacing: -0.3px;
+      }
+
+      .left-panel__promo-title-icon {
+        margin-right: 6px;
+      }
+
+      .left-panel__promo-text {
+        font-size: 11px;
+        line-height: 1.45;
+        color: rgba(247, 244, 233, 0.86);
+      }
+
+      .left-panel__promo-link {
+        align-self: flex-start;
+        margin-top: 4px;
+        padding: 8px 12px;
+        border-radius: 9px;
+        background: rgba(255, 230, 109, 0.92);
+        color: #1b2a41;
+        font-size: 11px;
+        font-weight: 700;
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.15s ease;
+        box-shadow: 0 6px 16px rgba(255, 230, 109, 0.2);
+      }
+
+      .left-panel__promo-link:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 18px rgba(255, 230, 109, 0.26);
       }
 
       /* Footer */
@@ -614,7 +680,7 @@
     <div class="main-layout">
       <div class="left-panel">
         <div class="left-panel__header">
-          <h1 class="left-panel__title">AI Anywhere (Ask my AI)</h1>
+          <h1 class="left-panel__title">AI Anywhere</h1>
           <p class="left-panel__subtitle"><u>Your</u> AI assistant, always ready</p>
         </div>
 
@@ -657,6 +723,18 @@
             </a>
           </div>
 
+          <div class="left-panel__promo-card">
+            <span class="left-panel__promo-pill">New side quest</span>
+            <p class="left-panel__promo-title"><span class="left-panel__promo-title-icon">♞</span>Hanging Piece</p>
+            <p class="left-panel__promo-text">
+              AI chess coach that explains your blunders in plain english &amp;
+              <span style="font-weight: 600">how to improve</span>.
+            </p>
+            <a id="hanging-piece-popup-link" href="#" target="_blank" rel="noreferrer" class="left-panel__promo-link">
+              Try it
+            </a>
+          </div>
+
           <div class="left-panel__credits">
             <a href="https://x.com/biraj21_" target="_blank" class="left-panel__credits-link">by Biraj</a>
           </div>
@@ -691,7 +769,7 @@
 
             <!-- Prompts -->
             <div class="setting-group prompt-templates">
-              <p class="setting-group-label">Custom prompt templates</p>
+              <p class="setting-group-label">Custom prompts</p>
               <div class="prompt-input-group">
                 <input type="text" id="new-prompt-input" class="prompt-input" placeholder="Add a custom prompt..." />
                 <button id="add-prompt-btn" class="prompt-add-btn">Add</button>

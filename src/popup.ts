@@ -1,4 +1,4 @@
-import { AI_WEBSITES, COMMAND_SHORTCUTS } from "./constants";
+import { AI_WEBSITES, COMMAND_SHORTCUTS, PROMO_LINKS } from "./constants";
 import { ExtStorage } from "./storage";
 import { isItMac } from "./utils";
 
@@ -208,6 +208,13 @@ async function initSettings() {
   render();
 }
 
+function initPromoLinks() {
+  const hangingPieceLink = document.getElementById("hanging-piece-popup-link") as HTMLAnchorElement | null;
+  if (hangingPieceLink) {
+    hangingPieceLink.href = PROMO_LINKS.hangingPiecePopup;
+  }
+}
+
 // Prompt templates functionality
 async function initPromptTemplates() {
   const promptInput = document.getElementById("new-prompt-input") as HTMLInputElement;
@@ -275,6 +282,7 @@ async function initPromptTemplates() {
 // Initialize popup UI on load
 document.addEventListener("DOMContentLoaded", () => {
   checkAndDisplayShortcutStatus();
+  initPromoLinks();
   initSettings();
   initPromptTemplates();
 });

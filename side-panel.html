@@ -87,6 +87,36 @@
         background-color: #4a4a4a;
         transform: scale(1.05);
       }
+      .promo-button {
+        position: relative;
+        overflow: visible;
+        font-size: 19px;
+        font-family:
+          "Georgia",
+          "Times New Roman",
+          serif;
+      }
+      .promo-button:hover .promo-badge {
+        transform: translateY(-1px);
+      }
+      .promo-badge {
+        position: absolute;
+        top: -5px;
+        right: -6px;
+        min-width: 22px;
+        padding: 1px 5px;
+        border-radius: 999px;
+        background: linear-gradient(180deg, #ff7a59 0%, #ff4d6d 100%);
+        color: #fff;
+        font-size: 8px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        line-height: 1.5;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        box-shadow: 0 4px 10px rgba(255, 77, 109, 0.28);
+        transition: transform 0.2s ease;
+        pointer-events: none;
+      }
       .main-content {
         flex: 1;
         display: flex;

@@ -154,3 +154,10 @@ export const COMMAND_SHORTCUTS = {
 export const COMMAND_SHORTCUTS_MAP = {
   [COMMAND_SHORTCUTS.OPEN_SIDE_PANEL]: "⌘/Ctrl + Shift + E",
 } as const;
+
+const HANGING_PIECE_BASE_URL = "https://www.hangingpiece.com/";
+
+export const PROMO_LINKS = {
+  hangingPiecePopup: `${HANGING_PIECE_BASE_URL}?utm_source=ask_my_ai_extension&utm_medium=chrome_extension&utm_campaign=extension_cross_promo&utm_content=popup`,
+  hangingPieceSidebar: `${HANGING_PIECE_BASE_URL}?utm_source=ask_my_ai_extension&utm_medium=chrome_extension&utm_campaign=extension_cross_promo&utm_content=side_panel`,
+} as const;
