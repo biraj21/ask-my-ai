@@ -1,0 +1,69 @@
+<div class="menu-container" data-mode="default">
+  <div class="default-menu">
+    <div class="menu-item" data-action="__ACTION_EXPLAIN__">Explain</div>
+    <div class="menu-item" data-action="__ACTION_SUMMARIZE__">Summarize</div>
+    <div class="menu-item" data-action="__ACTION_SIMPLIFY__">ELI5 (Simplify)</div>
+    <div class="menu-divider"></div>
+    <div class="custom-input-container">
+      <div class="template-list"></div>
+      <div class="prompt-entry">
+        <div class="input-row">
+          <input type="text" class="custom-input" placeholder="Custom prompt..." autocomplete="off" />
+          <button type="button" class="mic-button" data-supported="false" aria-label="Speak prompt">
+            <svg
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 15a3 3 0 0 0 3-3V7a3 3 0 1 0-6 0v5a3 3 0 0 0 3 3Z" />
+              <path d="M19 11a7 7 0 0 1-14 0" />
+              <path d="M12 18v3" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="input-hint"><u>Enter</u> to send | <u>Esc</u> to cancel</div>
+    </div>
+  </div>
+  <div class="voice-menu">
+    <div class="voice-header">
+      <div class="voice-title-group">
+        <div class="voice-title">Speak your prompt</div>
+        <div class="speech-status">Listening...</div>
+      </div>
+      <button type="button" class="voice-back-button">Back</button>
+    </div>
+    <textarea
+      class="speech-textarea"
+      data-empty="true"
+      spellcheck="false"
+      aria-label="Spoken prompt"
+      placeholder="Listening for your prompt..."
+    ></textarea>
+    <div class="speech-actions">
+      <button type="button" class="speech-action speech-action-mic speech-toggle-button">
+        <svg
+          class="speech-action-icon"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 15a3 3 0 0 0 3-3V7a3 3 0 1 0-6 0v5a3 3 0 0 0 3 3Z" />
+          <path d="M19 11a7 7 0 0 1-14 0" />
+          <path d="M12 18v3" />
+        </svg>
+        <span class="speech-toggle-label">Stop</span>
+      </button>
+      <button type="button" class="speech-action speech-action-primary speech-submit-button" disabled>OK</button>
+    </div>
+    <div class="input-hint"><u>Ok</u> to send | <u>Esc</u> to cancel</div>
+  </div>
+</div>

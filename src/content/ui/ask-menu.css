@@ -1,0 +1,324 @@
+:host {
+  position: absolute;
+  z-index: 2147483647;
+  display: none;
+  opacity: 0;
+  transform: scale(0.95) translateY(-5px);
+  transition:
+    opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:host(.show) {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.menu-container {
+  background: rgba(17, 24, 39, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 12px;
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.3),
+    0 8px 10px -6px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  padding: 6px;
+  width: 250px;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", sans-serif;
+}
+
+.menu-container[data-mode="voice"] .default-menu {
+  display: none;
+}
+
+.menu-container[data-mode="default"] .voice-menu {
+  display: none;
+}
+
+.menu-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #e5e7eb;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  display: block;
+  position: relative;
+  user-select: none;
+}
+
+.menu-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.menu-item:active {
+  transform: scale(0.98);
+}
+
+.menu-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 6px 0;
+}
+
+.custom-input-container {
+  padding: 6px;
+}
+
+.template-list {
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 8px;
+  max-height: 120px;
+  overflow-y: auto;
+  padding: 0 2px;
+}
+
+.template-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.template-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.template-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.template-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.template-item {
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #e5e7eb;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.template-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.custom-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 400;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.2);
+  color: #ffffff;
+}
+
+.input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.input-row .custom-input {
+  flex: 1;
+}
+
+.mic-button {
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.mic-button:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.mic-button:active {
+  transform: scale(0.97);
+}
+
+.mic-button[data-supported="true"] {
+  display: inline-flex;
+}
+
+.mic-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.voice-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px;
+}
+
+.voice-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.voice-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.voice-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #f9fafb;
+}
+
+.speech-status {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.voice-back-button {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #e5e7eb;
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.voice-back-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.speech-textarea {
+  width: 100%;
+  min-height: 108px;
+  max-height: 180px;
+  overflow-y: auto;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.26);
+  color: #ffffff;
+  font-size: 13px;
+  line-height: 1.5;
+  word-break: break-word;
+  box-sizing: border-box;
+  resize: vertical;
+  font-family: inherit;
+  outline: none;
+}
+
+.speech-textarea:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.speech-textarea[data-empty="true"] {
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.speech-textarea::placeholder {
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.speech-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.speech-action {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.speech-action:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.speech-action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.speech-action-mic {
+  flex: 1;
+}
+
+.speech-action-primary {
+  flex: 1;
+  background: linear-gradient(135deg, #667eea 0%, #5a67d8 100%);
+  border-color: rgba(102, 126, 234, 0.75);
+}
+
+.speech-action-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #7288ee 0%, #6474e0 100%);
+}
+
+.speech-action-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.custom-input:focus {
+  border-color: #667eea;
+  background: rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.custom-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.input-hint {
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 6px;
+  padding: 0 6px;
+}
+.default-menu,
+.voice-menu {
+  width: 100%;
+  box-sizing: border-box;
+}
