@@ -329,6 +329,14 @@ async function init() {
   });
 
   document.addEventListener("keydown", (event) => {
+    // Select-all updates the DOM selection after this keydown handler runs,
+    // so defer the popup refresh until the next frame when the new range exists.
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "a") {
+      window.requestAnimationFrame(() => {
+        handleSelectionChange();
+      });
+    }
+
     if ((event.ctrlKey || event.metaKey) && event.key === "c" && askButton.style.display !== "none") {
       hideButton(askButton, selectionMenu, clearMenuState, MENU_ANIMATION_DELAY_MS);
       clearAutoHideTimeout();

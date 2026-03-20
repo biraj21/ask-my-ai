@@ -98,10 +98,12 @@ export function isValidSelection(selection: Selection | null): boolean {
     return false;
   }
 
-  const parent = anchorNode.parentElement;
-  const tagName = parent.tagName.toLowerCase();
+  return true;
 
-  return tagName !== "input" && tagName !== "textarea" && !parent.isContentEditable;
+  // const parent = anchorNode.parentElement;
+  // const tagName = parent.tagName.toLowerCase();
+
+  // return tagName !== "input" && tagName !== "textarea" && !parent.isContentEditable;
 }
 
 export function getSelectedText(): string {
